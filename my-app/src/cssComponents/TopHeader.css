@@ -1,0 +1,61 @@
+.top-header {
+    background-color: #07111f;
+    color: white;
+    padding: 20px;
+    min-height: 100px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    width: 170px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.notification-button {
+    background-color: white;
+    border: white;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.header-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.welcome-text h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+.welcome-text p {
+    margin: 0;
+    font-size: 12px;
+}
+
+.power-card {
+      background-color: #111b2b;
+      padding: 15px 35px;
+      border-radius: 20px;
+      text-align: left;
+      min-width: 100 px;
+}
+
+.power-card h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.power-card p {
+    margin: 0;
+    font-size: 12px;
+}
