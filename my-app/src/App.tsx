@@ -1,10 +1,10 @@
 //import React from 'react';
 //import logo from './logo.svg';
 import './App.css';
-import HomePage from "./Pages/HomePage";
+import HomePage from "./temp pages/HomePage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { SIGNUP } from './Pages/signup';
-import { AUTH } from './Pages/auth';
+import { SIGNUP } from './temp pages/signup';
+import { AUTH } from './temp pages/auth';
 
 function App() {
   return (
