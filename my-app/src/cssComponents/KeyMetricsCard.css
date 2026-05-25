@@ -1,0 +1,14 @@
+.card {
+    background: #101b2d;
+    border-radious: 16px;
+    padding: 16px;
+    color: white;
+}
+
+.metric-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 10px;
+}
