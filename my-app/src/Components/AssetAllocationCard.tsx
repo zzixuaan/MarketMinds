@@ -1,4 +1,5 @@
 import Card from "./Card";
+import "../cssComponents/assetallocationcard.css"
 
 function AssetAllocationCard() {
     return (

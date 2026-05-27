@@ -1,4 +1,3 @@
-import NavigationBar from "../Components/NavigationBar";
 import TopHeader from "../Components/TopHeader";
 import PortfolioSummaryCard from "../Components/PortfolioSummaryCard";
 import KeyMetricsCard from "../Components/KeyMetricsCard";
@@ -9,7 +8,7 @@ import "../cssPages/HomePage.css";
 
 function HomePage() {
     return (
-        <div>
+        <div className= "home">
             <TopHeader />
             <PortfolioSummaryCard />
             <div className="dashboard">
@@ -18,7 +17,6 @@ function HomePage() {
                 <TopHoldingsCard />
                 <RecentTradesCard />
             </div>
-            <NavigationBar />
         </div>
     )
 }

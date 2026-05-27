@@ -4,6 +4,7 @@ import './App.css';
 import HomePage from "./temp pages/HomePage";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AUTH } from './temp pages/auth';
+import Journal from './temp pages/journal';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<AUTH />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/journal" element= {<Journal />} />
       </Routes>
     </BrowserRouter>
   );

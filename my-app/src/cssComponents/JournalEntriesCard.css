@@ -1,0 +1,51 @@
+.journal-entries{
+    background: linear-gradient(145deg, #121a31, #0d1426);
+    color: white;
+    border-radius: 28px;
+    padding: 28px;
+    margin: 20px;
+    
+    box-shadow:
+      0 22px 45px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: "Manrope", system-ui, sans-serif;
+
+}
+
+.journal-entries-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.view-all-button {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+
+.logs {
+    background-color: #050B1D;
+
+    box-shadow:
+      0 22px 45px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: "Manrope", system-ui, sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: space-between;
+    border-radius: 10px;
+
+}

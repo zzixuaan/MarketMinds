@@ -1,0 +1,6 @@
+.Asset-Allocation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-family: "Manrope", system-ui, sans-serif;
+}
