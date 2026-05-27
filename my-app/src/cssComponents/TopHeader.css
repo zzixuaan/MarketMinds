@@ -1,8 +1,8 @@
 .top-header {
-    background-color: #07111f;
+    background-color: #050B1D;
     color: white;
-    padding: 20px;
-    min-height: 100px;
+    padding: 32px 40px;
+    min-height: 220px;
 }
 
 .header-top {
@@ -12,16 +12,19 @@
 }
 
 .logo {
-    width: 170px;
-    height: 100px;
+    width: 165px;
+    height: auto;
     object-fit: contain;
 }
 
 .notification-button {
-    background-color: white;
-    border: white;
-    color: black;
-    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 9px 16px;
+    border-radius: 999px;
     cursor: pointer;
 }
 
@@ -29,33 +32,45 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 40px;
+    margin-top: 20px;
+    gap: 48px;
 }
 
 .welcome-text h2 {
-    margin: 0;
-    font-size: 28px;
+    margin: 0 0 6px;
+    font-size: 36px;
+    font-family: "Manrope", system-ui, sans-serif;
+    letter-spacing: -0.05em;
+
 }
 
 .welcome-text p {
     margin: 0;
     font-size: 12px;
+    font-family: "Manrope", system-ui, sans-serif;
+    color: #aeb8cc;
 }
 
 .power-card {
-      background-color: #111b2b;
-      padding: 15px 35px;
-      border-radius: 20px;
+      background-color: #11182b;
+      padding: 26px 36px;
+      border-radius: 24px;
       text-align: left;
-      min-width: 100 px;
+      width: 360 px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+
 }
 
-.power-card h3 {
-    margin: 0;
+.power-card h4 {
+    margin: 0 0 6px;
     font-size: 17px;
+    font-weight: bold;
+    font-family: "Manrope", system-ui, sans-serif;
 }
 
 .power-card p {
     margin: 0;
     font-size: 12px;
+    color: #c8d0df;
+    font-family: "Manrope", system-ui, sans-serif;
 }

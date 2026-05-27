@@ -1,0 +1,73 @@
+.portfolio-summary-card {
+  background: linear-gradient(145deg, #121a31, #0d1426);
+  color: white;
+  border-radius: 28px;
+  padding: 28px;
+  margin: 20px;
+
+  box-shadow:
+    0 22px 45px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: "Manrope", system-ui, sans-serif;
+}
+
+.portfolio-label {
+  margin: 0 0 10px;
+  color: #aeb8cc;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.portfolio-value {
+  margin: 0 0 8px;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.portfolio-gain {
+  margin: 0;
+  color: #22c978;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.portfolio-chart-placeholder {
+  height: 150px;
+  margin-top: 24px;
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #7f8aa3;
+  font-size: 14px;
+
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.portfolio-time-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.portfolio-time-buttons button {
+  background: transparent;
+  border: none;
+  color: #aeb8cc;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.portfolio-time-buttons button:first-child {
+  background: #7c5cff;
+  color: white;
+}

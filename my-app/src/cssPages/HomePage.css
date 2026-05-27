@@ -4,4 +4,14 @@
   grid-template-columns: 1fr 1fr;
 
   gap: 12px;
+
+  background-color: #050b1d;
+
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.home {
+  background-color: #050B1D;
 }

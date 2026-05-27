@@ -1,5 +1,6 @@
-import logo from "../Pictures/Market Minds Logo.jpg";
+import logo from "../Pictures/Market_Minds_Logo_transparent.png";
 import "../cssComponents/TopHeader.css";
+import NavigationBar from "./NavigationBar";
 
 
 function TopHeader() {
@@ -13,6 +14,8 @@ function TopHeader() {
                 </button>
             </div>
 
+            <NavigationBar />
+
             <div className="header-bottom">
                 <div className="welcome-text">
                     <h2>Hello User!</h2>
@@ -20,7 +23,7 @@ function TopHeader() {
                 </div>
 
                 <div className="power-card">
-                    <h3>Virtual Purchasing Power:</h3>
+                    <h4>Virtual Purchasing Power:</h4>
                     <p>(insert portfolio value here)</p>
                 </div>
             </div>

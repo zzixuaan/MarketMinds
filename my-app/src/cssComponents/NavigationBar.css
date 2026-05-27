@@ -1,11 +1,12 @@
 .navigation-bar {
-    position: fixed;
+    /*position: fixed;
     bottom: 0;
     left: 0;
+    */
 
     width: 100%;
 
-    background: white;
+    background: #171F35;
 
     display: flex;
     justify-content: space-around;
@@ -14,6 +15,7 @@
 }
 
 .navigation-bar a {
-    colour: white;
+    color: #aeb8cc;
+    font-weight: bold;
     text-decoration: none;
 }
