@@ -1,4 +1,5 @@
 import "../cssComponents/NavigationBar.css";
+import { Link } from "react-router-dom";
 
 function NavigationBar() {
     return (
@@ -7,7 +8,7 @@ function NavigationBar() {
             <a href="#">Portfolio</a>
             <a href="#">Trade</a>
             <a href="#">Journal</a>
-            <a href="#">Profile</a>
+            <Link to = "/profile">Profile</Link>
         </nav>
     )
 }
