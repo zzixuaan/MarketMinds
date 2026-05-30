@@ -1,12 +1,13 @@
 import { auth, googleProvider } from '../firebase-config';
-import { signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from 'firebase/auth';
+import { database } from '../firebase-config';
+import { doc, setDoc } from "firebase/firestore";
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { FaGoogle } from 'react-icons/fa'; 
-import { FaRegUser } from 'react-icons/fa'; 
-import { FaKey } from 'react-icons/fa'; 
-import { FaEye } from 'react-icons/fa'; 
-import { FaEnvelope } from 'react-icons/fa'; 
+import { FaKey, FaEnvelope } from 'react-icons/fa'; 
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 import "../cssPages/auth.css";
@@ -26,6 +27,7 @@ export const AUTH = () => {
 
    const [signupError, setSignupError] = useState("");
    const [signupLoading, setSignupLoading] = useState(false);
+   const [signupMessage, setSignupMessage] = useState("");
 
     // common
    const navigate = useNavigate();
@@ -33,16 +35,21 @@ export const AUTH = () => {
    // animation state
    const [isActive, setIsActive] = useState(false);
 
-
+   // sign in
    const signIn = async () => {
        try {
            setLoading(true);
            setError("");
           
-           await signInWithEmailAndPassword(auth, email, password);
+           const userCredential = await signInWithEmailAndPassword(auth, email, password);
+           await userCredential.user.reload();
+
+           if (!userCredential.user.emailVerified) {
+            setError("Please verify your email before logging in.");
+            return;
+           }
+
            navigate("/home");
-
-
        } catch (err: unknown) {
            if (err instanceof Error) {
                switch ((err as any).code) {
@@ -74,7 +81,7 @@ export const AUTH = () => {
        }
    };
 
-
+   // google sign in
    const signInWithGoogle = async () => {
        try {
            setLoading(true);
@@ -90,6 +97,7 @@ export const AUTH = () => {
        }
    }
 
+   // sign up
    const signUp = async () => {
            if (signupPassword != signupConfirmPassword) {
                setSignupError("Passwords do not match.");
@@ -100,9 +108,12 @@ export const AUTH = () => {
                setSignupLoading(true);
                setSignupError("");
    
-               await createUserWithEmailAndPassword(auth, signupEmail, signupPassword);
+               const userCredential = await createUserWithEmailAndPassword(auth, signupEmail, signupPassword);
+               await sendEmailVerification(userCredential.user);
+               await setDoc(doc(database, "users", userCredential.user.uid), { email: signupEmail, createdAt: new Date() });
    
-               navigate("/home");
+               await auth.signOut();
+               setSignupMessage("Verification email sent. Please check your inbox or spam folder.");
    
            } catch (err: unknown) {
                if (err instanceof Error) {
@@ -226,6 +237,7 @@ export const AUTH = () => {
                             />
                         </div>
                         {signupError && <p style={{ color: "red" }}>{signupError}</p>}
+                        {signupMessage && <p style={{ color: "lightgreen" }}>{signupMessage}</p>}
                         <button className = "enter-button"
                             type = "submit"
                             disabled = {signupLoading}
