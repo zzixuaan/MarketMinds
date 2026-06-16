@@ -1,4 +1,4 @@
-import "../cssComponents/JournalEntriesCard.css"
+import "../../cssComponents/JournalEntriesCard.css"
 
 function JournalEntriesCard() {
     return (

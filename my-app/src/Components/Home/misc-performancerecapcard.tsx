@@ -1,5 +1,5 @@
-import Card from "./Card";
-import "../cssComponents/JournalPerformanceRecapCard.css";
+import Card from "../General/Card";
+import "../../cssComponents/JournalPerformanceRecapCard.css";
 
 
 function JournalPerformanceRecapCard() {

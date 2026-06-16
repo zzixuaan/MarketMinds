@@ -1,5 +1,5 @@
 import { auth } from "../firebase-config";
-import NavigationBar from "../Components/NavigationBar";
+import NavigationBar from "../Components/General/NavigationBar";
 
 export const Profile = () => {
     const user = auth.currentUser;
