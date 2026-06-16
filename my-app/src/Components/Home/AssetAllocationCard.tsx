@@ -1,5 +1,5 @@
-import Card from "./Card";
-import "../cssComponents/assetallocationcard.css"
+import Card from "../General/Card";
+import "../../cssComponents/assetallocationcard.css"
 
 function AssetAllocationCard() {
     return (

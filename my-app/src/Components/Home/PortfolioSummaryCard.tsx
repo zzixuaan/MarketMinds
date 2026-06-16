@@ -1,4 +1,4 @@
-import "../cssComponents/portfoliosummarycard.css";
+import "../../cssComponents/portfoliosummarycard.css";
 
 function PortfolioSummaryCard() {
   return (

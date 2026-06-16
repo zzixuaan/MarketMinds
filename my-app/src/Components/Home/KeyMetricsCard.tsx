@@ -1,5 +1,5 @@
-import Card from "./Card";
-import "../cssComponents/KeyMetricsCard.css"
+import Card from "../General/Card";
+import "../../cssComponents/KeyMetricsCard.css"
 
 function KeyMetricsCard() {
     return (

@@ -1,15 +1,17 @@
-import TopHeader from "../Components/TopHeader";
-import PortfolioSummaryCard from "../Components/PortfolioSummaryCard";
-import KeyMetricsCard from "../Components/KeyMetricsCard";
-import AssetAllocationCard from "../Components/AssetAllocationCard";
-import TopHoldingsCard from "../Components/TopHoldingsCard";
-import RecentTradesCard from "../Components/RecentTradesCard";
+import TopHeader from "../Components/General/TopHeader";
+import PortfolioSummaryCard from "../Components/Home/PortfolioSummaryCard";
+import KeyMetricsCard from "../Components/Home/KeyMetricsCard";
+import AssetAllocationCard from "../Components/Home/AssetAllocationCard";
+import TopHoldingsCard from "../Components/Home/TopHoldingsCard";
+import RecentTradesCard from "../Components/Home/RecentTradesCard";
+import HomeHeader from "../Components/Home/HomeHeader";
 import "../cssPages/HomePage.css";
 
 function HomePage() {
     return (
         <div className= "home">
             <TopHeader />
+            <HomeHeader />
             <PortfolioSummaryCard />
             <div className="dashboard">
                 <KeyMetricsCard />
