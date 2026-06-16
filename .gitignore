@@ -5,3 +5,7 @@
 # React Router
 /.react-router/
 /build/
+
+#Python
+backend/venv/
+backend/.env/
