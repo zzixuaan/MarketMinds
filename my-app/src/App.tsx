@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AUTH } from './temp pages/auth';
 import Journal from './temp pages/journal';
 import { Profile } from "./temp pages/profile";
+import { ForgotPassword }  from "./temp pages/forgotpassword";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/home" element = {<HomePage />} />
         <Route path="/journal" element = {<Journal />} />
         <Route path="/profile" element = {<Profile />} />
+        <Route path ="/forgot-password" element = {<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   );

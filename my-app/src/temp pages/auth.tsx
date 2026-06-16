@@ -188,6 +188,7 @@ export const AUTH = () => {
                         </div>
                         <button className = "forgot-password-button"
                             type = "button"
+                            onClick = {() => navigate("/forgot-password")}
                         > Forgot your password?
                         </button>
                         {error && <p style={{color: 'red'}}>{error}</p>}

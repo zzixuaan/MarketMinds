@@ -5,11 +5,18 @@ export const Profile = () => {
     const user = auth.currentUser;
     
     return (
-        <div>
-            <h1>Profile</h1>
-            <p>Email: {user?.email}</p>
-            <p>UID: {user?.uid}</p>
+        <div className = "profile-page">
+            <div className = "profile-sidebar">
+                <div className = "profile-card">
+                    
+                </div>
+            </div>
         </div>
-    )
+        // <div>
+        //     <h1>Profile</h1>
+        //     <p>Email: {user?.email}</p>
+        //     <p>UID: {user?.uid}</p>
+        // </div>
+    );
 }
 
