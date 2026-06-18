@@ -1,7 +1,7 @@
 import { auth, googleProvider } from '../firebase-config';
 import { signInWithEmailAndPassword, signInWithPopup, createUserWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, signOut } from 'firebase/auth';
 import { database } from '../firebase-config';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc , serverTimestamp } from "firebase/firestore";
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -87,7 +87,23 @@ export const AUTH = () => {
            setLoading(true);
            setError("");
 
-           await signInWithPopup(auth, googleProvider);
+           const res = await signInWithPopup(auth, googleProvider);
+
+           const userRef = doc(database, "users", res.user.uid);
+           const userSnap = await getDoc(userRef);
+
+           if (!userSnap.exists()) {
+                await setDoc(userRef, 
+                                {
+                                    email: res.user.email, 
+                                    createdAt: serverTimestamp(),
+                                    onboardingComplete: false,
+                                    startingCapital: null,
+                                    buyingPower: null,
+                                    portfolioCapital: null
+                                }, 
+                            );            
+           }
            navigate ("/home");
 
        } catch (err: any) {
@@ -110,7 +126,16 @@ export const AUTH = () => {
    
                const userCredential = await createUserWithEmailAndPassword(auth, signupEmail, signupPassword);
                await sendEmailVerification(userCredential.user);
-               await setDoc(doc(database, "users", userCredential.user.uid), { email: signupEmail, createdAt: new Date() });
+               await setDoc(doc(database, "users", userCredential.user.uid), 
+                            { 
+                                email: signupEmail, 
+                                createdAt: serverTimestamp(),
+                                onboardingComplete: false,
+                                startingCapital: null,
+                                buyingPower: null,
+                                portfolioCapital: null
+                            }
+                        );
    
                await auth.signOut();
                setSignupMessage("Verification email sent. Please check your inbox or spam folder.");
