@@ -8,4 +8,11 @@
 
 #Python
 backend/venv/
-backend/.env/
+backend/.env
+backend/serviceAccountKey.json
+backend/.venv/
+**/__pycache__/
+
+my-app/.env.local
+
+
