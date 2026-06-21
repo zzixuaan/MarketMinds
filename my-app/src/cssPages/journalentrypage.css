@@ -1,0 +1,212 @@
+.journalentrypage {
+    background-color: #050B1D;
+    color: white;
+    min-height: 100vh;
+}
+
+.journalentrypage h1 {
+    margin-bottom: 30px;
+    color: white;
+    text-align: center;
+}
+
+.journalform label {
+    color: white;
+    font-size: 18px;
+    font-family: "Manrope", system-ui, sans-serif;
+}
+
+.journalform h3 {
+    color: white;
+    font-size: 25px;
+    border-bottom: 1px solid #394762;
+
+    margin: 30px 0 5px;
+    padding-bottom: 12px;
+}
+
+.journalform {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2.5rem;
+    border-radius: 18px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    display: grid;
+    gap: 1.5rem;
+    background-color: #171F35;
+
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 15px;
+
+}
+
+.form-row input,
+.form-row select
+.form-row textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+
+    color: black;
+    background: white;
+
+    border: 1px solid #6b7280;
+    border-radius: 8px;
+    outline: none;
+
+    font-size: 16px;
+    font-family: inherit;
+}
+
+.form-row input,
+.form-row select {
+    min-height: 48px;
+}
+
+.form-row textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+
+
+.form-row input::placeholder,
+.form-row textarea::placeholder {
+    color: grey;
+    font-family: "Manrope", system-ui, sans-serif;
+    font-size: 16px;
+    font-style: italic;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+}
+
+
+.form-row select option {
+    color: black;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+    font-size: 16px;
+    font-family: "Manrope", system-ui, sans-serif;
+    
+}
+
+
+.submit-button button {
+    background-color: #7c5cff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: white;
+    font-weight: 700;
+    font-size: 20px;
+    padding: 16px 25px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: "Manrope", system-ui, sans-serif;
+    text-decoration: none;
+
+}
+
+.success-popup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+  background: rgba(2, 7, 20, 0.75);
+  backdrop-filter: blur(6px);
+}
+
+.success-popup {
+  width: min(420px, 100%);
+  padding: 34px;
+
+  color: white;
+  background: linear-gradient(145deg, #151e38, #0d1428);
+
+  border: 1px solid rgba(119, 92, 255, 0.45);
+  border-radius: 24px;
+
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+  text-align: center;
+
+  animation: success-popup-enter 0.25s ease-out;
+}
+
+.success-popup-icon {
+  width: 64px;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 18px;
+
+  color: #071a15;
+  background: #58e6ad;
+  border-radius: 50%;
+
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.success-popup h2 {
+  margin: 0 0 10px;
+  font-size: 25px;
+}
+
+.success-popup p {
+  margin: 0 0 24px;
+  color: #b7c1df;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.success-popup button {
+  padding: 12px 24px;
+
+  color: white;
+  background: linear-gradient(135deg, #7357ff, #8c5cff);
+
+  border: 0;
+  border-radius: 999px;
+
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.success-popup button:hover {
+  transform: translateY(-1px);
+}
+
+.form-error-message {
+  margin-top: 16px;
+  color: #ff8491;
+  font-weight: 600;
+  text-align: center;
+}
+
+@keyframes success-popup-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
