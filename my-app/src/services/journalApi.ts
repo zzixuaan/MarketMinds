@@ -12,6 +12,8 @@ export interface JournalEntryInput {
   positionSize: number;
   timePeriod: string;
   riskToReward: number;
+  stopLoss: number;
+  takeProfit: number;
   thesis: string;
   catalyst: string;
 
@@ -23,6 +25,7 @@ export interface JournalEntryInput {
   emotions: string;
 
   pnl?: number;
+  lessonsLearnt: string;
 }
 
 export interface JournalEntry extends JournalEntryInput {
@@ -57,25 +60,6 @@ async function readResponse<T>(
   return data as T;
 }
 
-export async function createJournalEntry(
-  entry: JournalEntryInput
-): Promise<JournalEntry> {
-  const token = await getAuthToken();
-
-  const response = await fetch(
-    `${BACKEND_URL}/api/journal`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(entry),
-    }
-  );
-
-  return readResponse<JournalEntry>(response);
-}
 
 export async function getJournalEntries(): Promise<
   JournalEntry[]
@@ -92,5 +76,49 @@ export async function getJournalEntries(): Promise<
     }
   );
 
-  return readResponse<JournalEntry[]>(response);
+  const data = await response.json();
+
+  if(!response.ok) {
+    throw new Error(
+      data.detail ||
+        data.message ||
+        "Unable to load journal entries."
+
+    );
+  }
+
+  return data as JournalEntry[];
+}
+
+export interface JournalEntry extends JournalEntryInput {
+  id: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export async function CreateJournalEntry(
+  entry: JournalEntryInput
+): Promise<JournalEntry> {
+  const token = await getAuthToken();
+
+  const response = await fetch(`${BACKEND_URL}/api/journal`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(entry),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail ||
+        data.message ||
+        "Unable to save journal entry"
+    );
+  }
+
+  return data as JournalEntry;
 }
