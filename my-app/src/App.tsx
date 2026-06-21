@@ -8,6 +8,8 @@ import Journal from './temp pages/journal';
 import { Profile } from "./temp pages/profile";
 import { ForgotPassword }  from "./temp pages/forgotpassword";
 import JournalEntry from "./temp pages/journalentry";
+import { Onboarding } from "./temp pages/onboarding"
+import { Trade } from "./temp pages/trade"
 
 function App() {
   return (
@@ -18,7 +20,8 @@ function App() {
         <Route path="/journal" element = {<Journal />} />
         <Route path="/profile" element = {<Profile />} />
         <Route path ="/forgot-password" element = {<ForgotPassword />} />
-
+        <Route path ="/onboarding" element = {<Onboarding />} />
+        <Route path ="/trade" element = {<Trade />} />
         <Route path ="/journalentry" element = {<JournalEntry />} />
       </Routes>
     </BrowserRouter>
