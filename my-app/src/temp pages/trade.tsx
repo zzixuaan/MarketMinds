@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { FaCircle } from "react-icons/fa";
 import { createChart, LineSeries, CandlestickSeries } from "lightweight-charts";
+import { auth } from "../firebase-config";
 import "../cssPages/trade.css";
 
 export const Trade = () => {
@@ -14,9 +15,12 @@ export const Trade = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [suggestions, setSuggestions] = useState<any[]>([]);
-    const [selectedStock, setSelectedStock] = useState<any>(null);
 
     const [chartData, setChartData] = useState<any>([]);
+
+    const [side, setSide] = useState<"buy" | "sell">("buy");
+    const [quantity, setQuantity] = useState("");
+    const [showReview, setShowReview] = useState(false);
 
     //market status
     useEffect (() => {
@@ -47,13 +51,15 @@ export const Trade = () => {
 
 
     // search
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    
     useEffect(() => {
-        const timer = setTimeout(() => {setDebouncedSearch(searchTerm);}, 250);
+        const timer = setTimeout(() => {setDebouncedSearch(searchTerm);}, 200);
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
     useEffect(() => {
-        if (selectedStock && selectedStock.symbol == searchTerm) {
+        if (stockData && stockData.symbol == searchTerm.toUpperCase()) {
             return;
         }
 
@@ -72,7 +78,17 @@ export const Trade = () => {
             }
         };
         fetchSuggestions();
-    }, [debouncedSearch, selectedStock, searchTerm]);
+    }, [debouncedSearch, searchTerm, stockData]);
+
+    useEffect(() => {
+        const handleClickOutside = (event : MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setSuggestions([]);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {document.removeEventListener("mousedown", handleClickOutside);};
+    }, []);
 
     const searchStock = async (symbol : string) => {
         if (!symbol.trim()) return;
@@ -101,7 +117,6 @@ export const Trade = () => {
     };
 
     const selectStock = async (stock : any) => {
-        setSelectedStock(stock);
         setSearchTerm(stock.symbol);
         setSuggestions([]);
         await searchStock(stock.symbol);
@@ -171,6 +186,34 @@ export const Trade = () => {
 
     }, [chartData]);
 
+    //trade
+    const submitTrade = async () => {
+        try {
+            const token = await auth.currentUser!.getIdToken();
+            const response = await fetch("http://localhost:8000/api/trade", 
+                                         { method: "POST", 
+                                           headers: {"Content-Type" : "application/json",
+                                                     "Authorization" : `Bearer ${token}`
+                                                    },
+                                           body: JSON.stringify({ symbol: stockData.symbol, 
+                                                                  side, 
+                                                                  quantity: Number(quantity), 
+                                                                  price: stockData.quote.c})
+                                         }
+                                    );
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail);
+            }
+            alert("Trade submitted successfully!");
+            setShowReview(false);
+        } catch (err : any) {
+            alert(err.message || "Trade failed.");
+        };
+    };
+    
+
     return (
         <div className = "trade-page">
             <div className = "trade-container">
@@ -206,8 +249,8 @@ export const Trade = () => {
                     </div>
                 </div>
                 <div className = "search-card">
-                    <div className = "search-bar">
-
+                    <div className = "search-bar"
+                        ref = {dropdownRef}>
                         <input className = "search-input"
                             type = "text"
                             placeholder = "Search ticker (e.g. AAPL, NVDA, TSLA...)"
@@ -236,7 +279,7 @@ export const Trade = () => {
                     </div>
                     {error && <p style = {{color: "red"}}>{error}</p>}
                 </div>
-
+            {stockData ? (
                 <div className = "result-container">
                     <div className = "company-card">
                         <div className = "company-header">
@@ -258,10 +301,104 @@ export const Trade = () => {
                         </div>
                     </div>
                     <div className = "trade-card">
-                        <h2>Trade form here</h2>
+                        <div className = "trade-form">
+                            <h2>TRADE</h2>
+                            <div className = "form-section">
+                                <label>Symbol</label>
+                                <input value = {stockData?.symbol || ""}
+                                    readOnly
+                                />
+                            </div>
+                            <div className = "form-section">
+                                <label>Order type</label>
+                                <div className = "trade-toggle">
+                                    <button type = "button"
+                                        className = {`toggle-button ${side === "buy" ? "active-buy" : ""}`}
+                                        onClick = {() => setSide("buy")}
+                                    >Buy</button>
+                                    <button type = "button"
+                                        className = {`toggle-button ${side === "sell" ? "active-sell" : ""}`}
+                                        onClick = {() => setSide("sell")}
+                                    >Sell</button>
+                                </div>
+                            </div>
+                            <div className = "form-section">
+                                <label>Quantity</label>
+                                <input type = "number"
+                                    min = "1"
+                                    placeholder = "Shares"
+                                    value = {quantity}
+                                    onChange = {(e) => setQuantity(e.target.value)}
+                                />
+                            </div>
+                            <p>Current price: ${stockData?.quote?.c?.toFixed(2) || "0.00"}</p>
+                            <p>Estimated value: ${(Number(quantity || 0) * (stockData?.quote?.c || 0)).toFixed(2)}</p>
+                            <button className = "review-button"
+                                disabled = {!quantity || Number(quantity) <= 0}
+                                onClick = {() => setShowReview(true)}>
+                                    Review Trade
+                            </button>
+                        </div>
                     </div>
                 </div>
+            ) : (
+                <div className = "empty-state">
+                    Search for a stock to begin trading
+                </div>
+            ) }
             </div>
+            {showReview && (
+                <div className = "modal-overlay">
+                    <div className = "review-modal">
+                        <div className="review-details">
+                            <div className="review-row">
+                                <span className="review-label">Side</span>
+                                <span className="review-value">{side.toUpperCase()}</span>
+                            </div>
+
+                            <div className="review-row">
+                                <span className="review-label">Symbol</span>
+                                <span className="review-value">{stockData?.symbol}</span>
+                            </div>
+
+                            <div className="review-row">
+                                <span className="review-label">Quantity</span>
+                                <span className="review-value">{quantity}</span>
+                            </div>
+
+                            <div className="review-row">
+                                <span className="review-label">Price</span>
+                                <span className="review-value">
+                                    ${stockData?.quote?.c?.toFixed(2)}
+                                </span>
+                            </div>
+
+                            <div className="review-row review-total">
+                                <span>Estimated Total</span>
+                                <span>
+                                    ${(Number(quantity) * stockData?.quote?.c).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="review-actions">
+                            <button
+                                className="cancel-button"
+                                onClick={ () => setShowReview(false)}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                className="confirm-button"
+                                onClick = {() => submitTrade()}
+                            >
+                                Confirm Trade
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

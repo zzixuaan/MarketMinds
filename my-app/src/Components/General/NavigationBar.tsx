@@ -6,7 +6,7 @@ function NavigationBar() {
         <nav className="navigation-bar">
             <Link to = "/home">Home</Link>
             <a href="#">Portfolio</a>
-            <a href="#">Trade</a>
+            <Link to ="/trade">Trade</Link>
             <Link to ="/journal">Journal</Link>
             <Link to = "/profile">Profile</Link>
         </nav>

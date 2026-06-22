@@ -3,6 +3,9 @@ import requests
 from dotenv import load_dotenv
 
 from alpaca.trading.client import TradingClient
+from alpaca.trading.requests import MarketOrderRequest
+from alpaca.trading.enums import OrderSide, TimeInForce
+
 from alpaca.data.historical.stock import StockHistoricalDataClient
 from alpaca.data.requests import (StockSnapshotRequest, StockBarsRequest)
 from alpaca.data.timeframe import TimeFrame
@@ -45,3 +48,12 @@ def get_candles(symbol: str):
     bars = data_client.get_stock_bars(request)
 
     return bars.df.reset_index().to_dict(orient="records")
+
+def submit_market_order(symbol : str, qty : int, side : str):
+    order = MarketOrderRequest(
+        symbol = symbol,
+        qty = qty,
+        side = OrderSide.BUY if side == "buy" else OrderSide.SELL,
+        time_in_force = TimeInForce.DAY
+    )
+    return trading_client.submit_order(order)
