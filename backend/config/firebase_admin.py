@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, auth
 
 
 BACKEND_DIRECTORY = Path(__file__).resolve().parent.parent
@@ -24,3 +24,11 @@ if not firebase_admin._apps:
 
 
 db = firestore.client()
+
+def verify_token(id_token : str):
+    decoded = auth.verify_id_token(id_token)
+    return decoded
+
+
+print("firebase_admin.py loaded")
+print("verify_token exists:", callable(verify_token))
