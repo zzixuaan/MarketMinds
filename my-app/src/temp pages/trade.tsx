@@ -3,6 +3,7 @@ import { FaCircle } from "react-icons/fa";
 import { createChart, LineSeries, CandlestickSeries } from "lightweight-charts";
 import { auth } from "../firebase-config";
 import "../cssPages/trade.css";
+import TopHeader from "../Components/General/TopHeader"
 
 export const Trade = () => {
     const [stockData, setStockData] = useState<any>(null);
@@ -216,6 +217,7 @@ export const Trade = () => {
 
     return (
         <div className = "trade-page">
+            <TopHeader />
             <div className = "trade-container">
                 <div className = "market-status-card">
                     <div>
