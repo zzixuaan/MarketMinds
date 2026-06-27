@@ -1,6 +1,4 @@
-import "../../cssComponents/JournalEntriesCard.css"
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom"
 export interface RecentJournalEntry {
     id: string;
     date: string;
@@ -18,18 +16,14 @@ interface JournalEntriesCardProps {
     deletingEntryId?: string | null;
 }
 
-function JournalEntriesCard({entries, onViewAll, onDelete, deletingEntryId}: JournalEntriesCardProps ) {
+function JournalViewAllCard({entries, onViewAll, onDelete, deletingEntryId}: JournalEntriesCardProps ) {
     const navigate = useNavigate();
+    
     return (
         <section className= "journal-entries">
             <div className= "journal-entries-header">
-                <h3>Recent Journal Entries</h3>
+                <h3>All journal entries</h3>
 
-                <button className= "view-all-button"
-                onClick={onViewAll}
-                >
-                    View all
-                </button>
             </div>
 
             {entries.length === 0 ? (
@@ -39,7 +33,7 @@ function JournalEntriesCard({entries, onViewAll, onDelete, deletingEntryId}: Jou
                 </div>
             ) : (
                 <div className="journal-entries-list">
-                    {entries.slice(0,3).map((entry) => {
+                    {entries.map((entry) => {
                         const isProfit = entry.pnl >= 0;
 
                         return (
@@ -116,4 +110,4 @@ function JournalEntriesCard({entries, onViewAll, onDelete, deletingEntryId}: Jou
 }
 
 
-export default JournalEntriesCard;
+export default JournalViewAllCard;

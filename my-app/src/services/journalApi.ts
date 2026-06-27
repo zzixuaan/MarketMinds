@@ -90,11 +90,6 @@ export async function getJournalEntries(): Promise<
   return data as JournalEntry[];
 }
 
-export interface JournalEntry extends JournalEntryInput {
-  id: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
 
 export async function CreateJournalEntry(
   entry: JournalEntryInput
@@ -121,4 +116,82 @@ export async function CreateJournalEntry(
   }
 
   return data as JournalEntry;
+}
+
+
+export async function deleteJournalEntry(
+  entryId: string
+): Promise<void> {
+  if (!entryId) {
+    throw new Error("Journal entry ID is required.");
+  }
+
+  const token= await getAuthToken();
+
+  const response = await fetch(
+    `${BACKEND_URL}/api/journal/${entryId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (response.status === 204) {
+    return;
+  }
+
+  let errorMessage = "Unable to delete journal entry.";
+
+  try {
+    const data = await response.json();
+
+    errorMessage = 
+      data.detail ||
+      data.message ||
+      errorMessage;
+
+  } catch {
+
+  } throw new Error(errorMessage);
+}
+
+
+export async function updateJournalEntry(
+  entryId: string,
+  updates: Partial<JournalEntryInput>
+): Promise<JournalEntry> {
+  if (!entryId) {
+    throw new Error("Journal entry ID is required.");
+  }
+
+  const token = await getAuthToken();
+
+  const response = await fetch(
+    `${BACKEND_URL}/api/journal/${entryId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `bearer ${token}`,
+      },
+      body: JSON.stringify(updates),
+    }
+  );
+
+  if (!response.ok) {
+    let message = "Unable to update journal entry.";
+
+    try {
+      const data = await response.json();
+      message = data.detail || message;
+    } catch {
+
+    }
+    throw new Error(message);
+  }
+
+  return response.json();
+  
 }

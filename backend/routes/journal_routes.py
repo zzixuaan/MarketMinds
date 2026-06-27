@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
+from typing import Literal
 
 from auth import get_current_user_id
 from services.journal_service import (
     create_journal_entry,
     get_journal_entries,
+    delete_journal_entry,
+    update_journal_entries,
 )
 
 
@@ -17,11 +20,13 @@ router = APIRouter(
 class JournalEntryCreate(BaseModel):
     title: str = ""
     ticker: str = ""
-    direction: str = ""
+    direction: str = Literal["Buy", "Sell"]
 
     entryPrice: float = Field(default=0, ge=0)
     positionSize: float = Field(default=0, ge=0)
 
+    stopLoss: float = Field(default=0, ge=0)
+    takeProfit: float = Field(default=0, ge=0)
     timePeriod: str = ""
     riskToReward: float = Field(default=0, ge=0)
 
@@ -36,6 +41,7 @@ class JournalEntryCreate(BaseModel):
     emotions: str = ""
 
     pnl: float = 0
+    lessonsLearnt: str = ""
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -66,3 +72,88 @@ async def list_entries(
     user_id: str = Depends(get_current_user_id),
 ):
     return get_journal_entries(user_id)
+
+@router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT,)
+
+async def delete_entry(entry_id: str, user_id: str = Depends(get_current_user_id),):
+    try: 
+        was_deleted = delete_journal_entry(user_id=user_id, entry_id=entry_id,)
+
+        if not was_deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Journal entry was not found.",
+            )
+        
+        return Response(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Journal entry was not found.",
+        )
+    
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error),
+        ) from error
+    
+
+class JournalEntryUpdate(BaseModel):
+    title: str | None = None
+    ticker: str | None = None
+    direction: Literal["Buy", "Sell"] | None = None
+
+    entryPrice: float | None = None
+    positionSize: float | None = None
+
+    stopLoss: float | None = None
+    takeProfit: float | None = None
+    timePeriod: str | None = None
+    riskToReward: float | None = None
+
+    thesis: str | None = None
+    catalyst: str | None = None
+
+    executionErrors: str | None = None
+    maxFavourableExcursion: float | None = None
+    maxAdverseExcursion: float | None = None
+
+    confidence: int | None = None
+    emotions: str | None = None
+
+    pnl: float | None = None
+    lessonsLearnt: str | None = None
+    
+
+@router.patch("/{entryId}")
+async def update_entry(
+    entry_id: str,
+    update_data: JournalEntryUpdate,
+    user_id: str = Depends(get_current_user_id)
+):
+    try:
+        updates = update_data.model_dump(
+            exclude_unset=True
+        )
+
+        if not updates:
+            raise HTTPException(
+                status_code=400,
+                detail="No fields were provided.",
+            )
+        
+        updated_entry = update_journal_entries(
+            user_id = user_id,
+            entry_id = entry_id,
+            entry_data = updates,
+        )
+
+        if updated_entry is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Journal entry was not found.",
+            )
+        
+        return updated_entry
+    
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error),) from error

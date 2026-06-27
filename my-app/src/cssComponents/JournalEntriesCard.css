@@ -213,3 +213,28 @@
     min-width: auto;
   }
 }
+
+
+.journal-delete-button {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+
+    width: auto;
+    min-width: 100px;
+    flex: 0 0 auto;
+    align-self: flex-start;
+
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0px;
+}

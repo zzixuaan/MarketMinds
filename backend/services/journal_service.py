@@ -65,7 +65,7 @@ def create_journal_entry(
     if position_size < 0:
         raise ValueError("Position size cannot be negative.")
 
-    now = datetime.now(timezone.utc) + 8
+    now = datetime.now(timezone.utc)
 
     new_entry = {
         "title": title,
@@ -123,3 +123,105 @@ def get_journal_entries(
         }
         for journal_document in documents
     ]
+
+
+def delete_journal_entry (
+    user_id: str,
+    entry_id: str,
+) -> bool:
+    if not user_id:
+        raise ValueError("User ID is required.")
+    
+    if not entry_id:
+        raise ValueError("Journal entry ID is required.")
+    
+    document_reference = (db.collection("users")
+                            .document(user_id)
+                            .collection("journalEntries")
+                            .document(entry_id))
+    
+    document_snapshot = document_reference.get()
+
+    if not document_snapshot.exists:
+        return False
+    
+    document_reference.delete()
+    return True
+
+
+ALLOWED_JOURNAL_FIELDS = {
+    "title",
+    "ticker",
+    "direction",
+    "entryPrice",
+    "positionSize",
+    "timePeriod",
+    "riskToReward",
+    "stopLoss",
+    "takeProfit",
+    "thesis",
+    "catalyst",
+    "executionErrors",
+    "maxFavourableExcursion",
+    "maxAdverseExcursion",
+    "confidence",
+    "emotions",
+    "pnl",
+    "lessonsLearnt",
+}
+
+def update_journal_entries(
+    user_id: str,
+    entry_id: str,
+    entry_data: dict[str, Any],
+) -> dict[str, Any] | None:
+    
+    if not user_id:
+        raise ValueError("User ID is required.")
+    
+    if not entry_id:
+        raise ValueError("Journal entry ID is required.")
+    
+    document_reference = (
+        db.collection("users")
+        .document(user_id)
+        .collection("journalEntries")
+        .document(entry_id)
+    )
+
+    document_snapshot = document_reference.get()
+
+    if not document_snapshot.exists:
+        return None
+    
+    updates = {
+        key: value
+        for key, value in entry_data.items()
+        if key in ALLOWED_JOURNAL_FIELDS
+
+    }
+
+    if not updates:
+        raise ValueError("No valid updates were made.")
+    
+    if "ticker" in updates:
+        updates["ticker"] = str(updates["ticker"]).strip().upper()
+
+    if "direction" in updates:
+        direction = str(updates["direction"].strip().title())
+
+        if direction not in {"Buy", "Sell"}:
+            raise ValueError("Direction must be Buy or Sell.")
+        
+        updates["direction"] = direction
+    
+    updates["updatedAt"] = datetime.now(timezone.utc)
+
+    document_reference.update(updates)
+
+    updated_snapshot = document_reference.get()
+
+    return {
+        "id": updated_snapshot.id,
+        **updated_snapshot.to_dict(),
+    }
