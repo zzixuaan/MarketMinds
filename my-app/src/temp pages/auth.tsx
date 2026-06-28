@@ -117,7 +117,9 @@ export const AUTH = () => {
             }
 
         } catch (err: any) {
-            setError("Google sign-in failed.");
+            // setError("Google sign-in failed.");
+            console.error(err);
+            setError(err.code || err.message);
         } finally {
             setLoading(false);
         }
