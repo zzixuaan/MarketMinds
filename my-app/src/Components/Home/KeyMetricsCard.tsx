@@ -3,7 +3,7 @@ import "../../cssComponents/KeyMetricsCard.css"
 
 function KeyMetricsCard() {
     return (
-        <Card>
+        <div className="metrics-card">
             <h3>Key Metrics</h3>
 
             <div className="metric-row">
@@ -34,7 +34,7 @@ function KeyMetricsCard() {
                 <span>Profit Factor</span>  
             </div>
 
-        </Card>
+        </div>
     )
 }
 

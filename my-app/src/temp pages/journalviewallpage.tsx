@@ -1,9 +1,7 @@
 import JournalTopHeader from "../Components/Journal/JournalTopHeader";
-import JournalEntriesCard from "../Components/Journal/JournalEntriesCard";
-import NavigationBar from "../Components/General/NavigationBar";
+import JournalViewAllCard from "../Components/Journal/JournalViewAllCard";
 import TopHeader from "../Components/General/TopHeader";
 import "../cssPages/Journal.css";
-import { useNavigate } from "react-router-dom";
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -11,15 +9,14 @@ import { auth } from "../firebase-config";
 
 import {
   getJournalEntries,
-  deleteJournalEntry,
+  deleteJournalEntry
 } from "../services/journalApi";
 
 import type {
   JournalEntry,
 } from "../services/journalApi";
 
-function Journal() {
-    const navigate = useNavigate();
+function JournalViewAll() {
     const [entries, setEntries] = useState<JournalEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
@@ -115,9 +112,11 @@ function Journal() {
             )}
 
             {!isLoading && !error && (
-                <JournalEntriesCard
+                <JournalViewAllCard
                 entries={recentEntries}
-                onViewAll={() => navigate("/journalviewallpage")}
+                onViewAll={() => {
+                    console.log("Open all journal entries");
+                }}
                 onDelete={handleDeleteEntry}
                 deletingEntryId={deletingEntryId}
                 />
@@ -130,4 +129,4 @@ function Journal() {
     );
 }
 
-export default Journal;
+export default JournalViewAll;
