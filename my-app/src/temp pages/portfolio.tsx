@@ -69,13 +69,13 @@ export const Portfolio = () => {
 
                 const [portfolioResponse, historyResponse] = await Promise.all([
 
-                    fetch("http://127.0.0.1:8000/api/portfolio", {
+                    fetch("https://marketminds-i17q.onrender.com/api/portfolio", {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
                     }),
 
-                    fetch("http://127.0.0.1:8000/api/portfolio/history", {
+                    fetch("https://marketminds-i17q.onrender.com/api/portfolio/history", {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
@@ -97,9 +97,8 @@ export const Portfolio = () => {
                 setHistory(historyData);
 
             } catch (err: any) {
-
                 setError(err.message);
-
+                console.error("Portfolio error:", err);
             } finally {
 
                 setLoading(false);
