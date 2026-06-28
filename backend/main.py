@@ -11,6 +11,8 @@ from routes.search import router as search_router
 from routes.market import router as market_router
 from routes.chart import router as chart_router
 from routes.trade import router as trade_router
+from routes.portfolio import router as portfolio_router
+
 
 
 load_dotenv()
@@ -37,6 +39,7 @@ app.include_router(search_router, prefix = "/api", tags = ["Search"])
 app.include_router(market_router, prefix = "/api", tags = ["Market"])
 app.include_router(chart_router, prefix = "/api", tags = ["Chart"])
 app.include_router(trade_router, prefix = "/api", tags = ["Trade"])
+app.include_router(portfolio_router, prefix="/api", tags=["Portfolio"])
 
 
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
