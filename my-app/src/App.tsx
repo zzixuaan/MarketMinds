@@ -10,6 +10,7 @@ import { ForgotPassword }  from "./temp pages/forgotpassword";
 import JournalEntry from "./temp pages/journalentry";
 import { Onboarding } from "./temp pages/onboarding"
 import { Trade } from "./temp pages/trade"
+import { Portfolio } from "./temp pages/portfolio"
 import JournalViewAll from "./temp pages/journalviewallpage";
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path ="/onboarding" element = {<Onboarding />} />
         <Route path ="/trade" element = {<Trade />} />
         <Route path ="/journalentry" element = {<JournalEntry />} />
+        <Route path ="/portfolio" element = {<Portfolio />} />
         <Route path ="/journalviewallpage" element = {<JournalViewAll />} />
       </Routes>
     </BrowserRouter>
