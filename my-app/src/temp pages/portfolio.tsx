@@ -4,6 +4,8 @@ import { PieChart, Pie, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { auth } from "../firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 
+import TopHeader from "../Components/General/TopHeader";
+
 import "../cssPages/portfolio.css";
 
 interface Holding {
@@ -83,6 +85,7 @@ export const Portfolio = () => {
 
                 const portfolioData = await portfolioResponse.json();
                 const historyData = await historyResponse.json();
+                console.log("History data:", historyData);
 
                 if (!portfolioResponse.ok)
                     throw new Error(portfolioData.detail);
@@ -135,45 +138,30 @@ export const Portfolio = () => {
         });
 
         const area = chart.addSeries(AreaSeries, {
-
             lineColor: "#22C55E",
-
             topColor: "rgba(34,197,94,0.4)",
-
             bottomColor: "rgba(34,197,94,0.05)"
-
         });
 
         area.setData(
 
             history.map(h => ({
-
-                time: Math.floor(h.timestamp.seconds) as any,
-
+                time: Math.floor(new Date(h.timestamp).getTime() / 1000) as any,
                 value: h.value
-
             }))
-
         );
 
         const resize = () => {
-
             chart.applyOptions({
-
                 width: chartRef.current!.clientWidth
-
             });
-
         };
 
         window.addEventListener("resize", resize);
 
         return () => {
-
             window.removeEventListener("resize", resize);
-
             chart.remove();
-
         };
 
     }, [history]);
@@ -216,6 +204,7 @@ export const Portfolio = () => {
 
     return (
         <div className = "portfolio-page">
+            <TopHeader />
             <div className = "portfolio-container">
                 <h1>Portfolio</h1>
                 <div className = "portfolio-summary">
