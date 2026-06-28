@@ -7,7 +7,7 @@ from firebase_admin import credentials, firestore, auth
 credential_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 if credential_path:
-    service_account_path = Path(credential_path)
+    SERVICE_ACCOUNT_PATH = Path(credential_path)
 else:
     BACKEND_DIRECTORY = Path(__file__).resolve().parent.parent
     SERVICE_ACCOUNT_PATH = BACKEND_DIRECTORY / "serviceAccountKey.json"
