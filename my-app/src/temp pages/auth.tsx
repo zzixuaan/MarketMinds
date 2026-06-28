@@ -14,158 +14,167 @@ import "../cssPages/auth.css";
 
 export const AUTH = () => {
     // for signin
-   const [email, setEmail] = useState("");
-   const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-   const [error, setError] = useState("");
-   const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-   // for signup
-   const [signupEmail, setSignupEmail] = useState("");
-   const [signupPassword, setSignupPassword] = useState("");
-   const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
+    // for signup
+    const [signupEmail, setSignupEmail] = useState("");
+    const [signupPassword, setSignupPassword] = useState("");
+    const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
 
-   const [signupError, setSignupError] = useState("");
-   const [signupLoading, setSignupLoading] = useState(false);
-   const [signupMessage, setSignupMessage] = useState("");
+    const [signupError, setSignupError] = useState("");
+    const [signupLoading, setSignupLoading] = useState(false);
+    const [signupMessage, setSignupMessage] = useState("");
 
     // common
-   const navigate = useNavigate();
+    const navigate = useNavigate();
 
-   // animation state
-   const [isActive, setIsActive] = useState(false);
+    // animation state
+    const [isActive, setIsActive] = useState(false);
 
-   // sign in
-   const signIn = async () => {
-       try {
-           setLoading(true);
-           setError("");
-          
-           const userCredential = await signInWithEmailAndPassword(auth, email, password);
-           await userCredential.user.reload();
+    // sign in
+    const signIn = async () => {
+        try {
+            setLoading(true);
+            setError("");
+            
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            await userCredential.user.reload();
 
-           if (!userCredential.user.emailVerified) {
-            setError("Please verify your email before logging in.");
-            return;
-           }
+            if (!userCredential.user.emailVerified) {
+                setError("Please verify your email before logging in.");
+                return;
+            }
 
-           navigate("/home");
-       } catch (err: unknown) {
-           if (err instanceof Error) {
-               switch ((err as any).code) {
+            const userRef = doc(database, "users", userCredential.user.uid);
+            const userSnap = await getDoc(userRef);
 
+            if (!userSnap.data()?.onboardingComplete) {
+                navigate("/onboarding");
+            } else {
+                navigate("/home");
+            }
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                switch ((err as any).code) {
 
-                   case "auth/invalid-email":
-                       setError("Please enter a valid email.");
-                       break;
+                    case "auth/invalid-email":
+                        setError("Please enter a valid email.");
+                        break;
                   
-                   case "auth/invalid-credential":
-                       setError("Invalid email or password.");
-                       break;
+                    case "auth/invalid-credential":
+                        setError("Invalid email or password.");
+                        break;
                   
-                   case "auth/too-many-requests":
-                       setError("Too many attempts. Please try again later.");
-                       break;
+                    case "auth/too-many-requests":
+                        setError("Too many attempts. Please try again later.");
+                        break;
                   
-                   case "auth/network-request-failed":
-                       setError("Network error.");
-                       break;
+                    case "auth/network-request-failed":
+                        setError("Network error.");
+                        break;
                   
-                   default:
-                       setError("Login failed. Please check your email/password.");
+                    default:
+                        setError("Login failed. Please check your email/password.");
                   
-               }
-           }
-       } finally {
-           setLoading(false);
-       }
-   };
+                }
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
-   // google sign in
-   const signInWithGoogle = async () => {
-       try {
-           setLoading(true);
-           setError("");
+    // google sign in
+    const signInWithGoogle = async () => {
+        try {
+            setLoading(true);
+            setError("");
 
-           const res = await signInWithPopup(auth, googleProvider);
+            const res = await signInWithPopup(auth, googleProvider);
 
-           const userRef = doc(database, "users", res.user.uid);
-           const userSnap = await getDoc(userRef);
+            const userRef = doc(database, "users", res.user.uid);
+            const userSnap = await getDoc(userRef);
 
-           if (!userSnap.exists()) {
+            if (!userSnap.exists()) {
                 await setDoc(userRef, 
                                 {
                                     email: res.user.email, 
                                     createdAt: serverTimestamp(),
                                     onboardingComplete: false,
                                     startingCapital: null,
-                                    buyingPower: null,
-                                    portfolioCapital: null
+                                    cash: 0
                                 }, 
                             );            
-           }
-           navigate ("/home");
+            }
+            
+            if (!userSnap.data()?.onboardingComplete) {
+                navigate("/onboarding");
+            } else {
+                navigate("/home");
+            }
 
-       } catch (err: any) {
-           setError("Google sign-in failed.");
-       } finally {
-           setLoading(false);
-       }
-   }
+        } catch (err: any) {
+            setError("Google sign-in failed.");
+        } finally {
+            setLoading(false);
+        }
+    }
 
-   // sign up
-   const signUp = async () => {
-           if (signupPassword != signupConfirmPassword) {
-               setSignupError("Passwords do not match.");
-               return;
-           }
+    // sign up
+    const signUp = async () => {
+            if (signupPassword != signupConfirmPassword) {
+                setSignupError("Passwords do not match.");
+                return;
+            }
    
-           try {
-               setSignupLoading(true);
-               setSignupError("");
+            try {
+                setSignupLoading(true);
+                setSignupError("");
    
-               const userCredential = await createUserWithEmailAndPassword(auth, signupEmail, signupPassword);
-               await sendEmailVerification(userCredential.user);
-               await setDoc(doc(database, "users", userCredential.user.uid), 
+                const userCredential = await createUserWithEmailAndPassword(auth, signupEmail, signupPassword);
+                await sendEmailVerification(userCredential.user);
+                await setDoc(doc(database, "users", userCredential.user.uid), 
                             { 
                                 email: signupEmail, 
                                 createdAt: serverTimestamp(),
                                 onboardingComplete: false,
                                 startingCapital: null,
-                                buyingPower: null,
-                                portfolioCapital: null
+                                cash: 0
                             }
                         );
    
-               await auth.signOut();
-               setSignupMessage("Verification email sent. Please check your inbox or spam folder.");
+                await auth.signOut();
+                setSignupMessage("Verification email sent. Please check your inbox or spam folder.");
    
-           } catch (err: unknown) {
-               if (err instanceof Error) {
-                   switch ((err as any).code) {
+            } catch (err: unknown) {
+                if (err instanceof Error) {
+                    switch ((err as any).code) {
    
-                       case "auth/email-already-in-use":
-                           setSignupError("Email is already in use.");
-                           break;
+                        case "auth/email-already-in-use":
+                            setSignupError("Email is already in use.");
+                            break;
                        
-                       case "auth/invalid-email":
-                           setSignupError("Please enter a valid email.")
-                           break;
+                        case "auth/invalid-email":
+                            setSignupError("Please enter a valid email.")
+                            break;
    
-                       case "auth/weak-password":
-                           setSignupError("Password should be at least 8 characters, contain an uppercase character and a number.")
-                           break;
+                        case "auth/weak-password":
+                            setSignupError("Password should be at least 8 characters, contain an uppercase character and a number.")
+                            break;
                        
-                       default:
-                           setSignupError("Signup failed. Please check your email/password.")
-                   }
-               } 
-           } finally {
-               setSignupLoading(false);
-           }
-       };
+                        default:
+                            setSignupError("Signup failed. Please check your email/password.")
+                    }
+                } 
+            } finally {
+                setSignupLoading(false);
+            }
+        };
   
-   return (
+    return (
         <div className = "auth-page">
             <div className = {`form-container ${isActive ? "active" : ""}`}>
                 <div className = "login-container">

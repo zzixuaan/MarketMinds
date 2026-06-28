@@ -7,11 +7,13 @@ import { doc, updateDoc } from "firebase/firestore";
 export const Onboarding = () => {
     const [startingCapital, setStartingCapital] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 
     const handleFinish = async () => {
         try {
+            setError("");
             setLoading(true);
 
             const user = auth.currentUser;
@@ -21,8 +23,14 @@ export const Onboarding = () => {
             }            
             
             const userRef = doc(database, "users", user.uid);
+            const capital = Number(startingCapital);
 
-            await updateDoc(userRef, {startingCapital: Number(startingCapital), onboardingComplete: true});
+            if (capital <= 0) {
+                setError("Please enter a valid starting capital.")
+                return;
+            }
+
+            await updateDoc(userRef, {startingCapital: capital, cash: capital, onboardingComplete: true});
             navigate("/home");
 
         } catch (err) {
@@ -38,10 +46,13 @@ export const Onboarding = () => {
             <p>Enter your starting capital:</p>
             <input
                 type = "number"
+                min = "1"
+                step = "1"
                 value = {startingCapital}
                 onChange = {(e) => setStartingCapital(e.target.value)}
                 placeholder = "e.g. 5000"
             />
+            {error && <p style={{ color: "red" }}>{error}</p>}
             <button onClick = {handleFinish} disabled = {loading}>
                 {loading ? "Saving..." : "Submit"}
             </button>
