@@ -29,6 +29,7 @@ app.add_middleware(
         "http://127.0.0.1:3000",
         "https://marketminds-i17q.onrender.com",
         "https://marketminds-e86aa.firebaseapp.com"
+        "https://marketminds-e86aa.web.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
