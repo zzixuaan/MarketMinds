@@ -55,6 +55,41 @@ function JournalEntryPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [message, setMessage] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
+    const [selectedExecutionMistakes, setSelectedExecutionMistakes] = useState<string[]>([]);
+
+    const emotionOptions = [
+                    "Confident",
+                    "Neutral",
+                    "Excited",
+                    "Anxious",
+                    "Fearful",
+                ];
+
+    const confidenceOptions = [
+                    { label: "Very low", value: 1 },
+                    { label: "Low", value: 2 },
+                    { label: "Neutral", value: 3 },
+                    { label: "High", value: 4 },
+                    { label: "Very high", value: 5 },
+                ];
+
+    const executionMistakeOptions = [
+                    "Chased entry",
+                    "Entered too early",
+                    "Entered too late",
+                    "Ignored stop loss",
+                    "Moved stop loss",
+                    "Oversized position",
+                    "Poor risk-to-reward",
+                    "No clear plan",
+                    "FOMO",
+                    "Revenge trade",
+                    "Hesitated on entry",
+                    "Exited too early",
+                    "Held too long",
+                    "Overtraded",
+                    "No major mistake",
+                ];
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(
@@ -98,36 +133,66 @@ function JournalEntryPage() {
         } as JournalEntryInput));
     }
 
+    function handleOptionButton(
+        name: keyof JournalEntryInput,
+        value: string | number
+    ) {
+        setForm((currentForm) => ({
+            ...currentForm,
+            [name]: value,
+        } as JournalEntryInput));
+    }
+
     async function handleSubmit(
         event: FormEvent<HTMLFormElement>
     ) {
         event.preventDefault();
 
         setMessage("");
+        setShowSuccess(false);
 
         if (!form.ticker.trim()) {
-            setMessage("Please enter a ticker symbol");
+            setMessage("Please enter a ticker symbol.");
             return;
         }
 
         if (!form.thesis.trim()) {
-            setMessage("Please enter a thesis");
+            setMessage("Please enter a thesis.");
             return;
         }
 
         if (form.confidence < 1 || form.confidence > 5) {
-            setMessage("Please select a confidence level.")
+            setMessage("Please select a confidence level.");
+            return;
+        }
+
+        if (!form.emotions) {
+            setMessage("Please select an emotion.");
             return;
         }
 
         try {
             setIsSaving(true);
 
-            console.log("Submitting journal:", form);
+            const executionMistakeText =
+                selectedExecutionMistakes.join(", ");
 
-            const savedEntry = await CreateJournalEntry(form);
+            const executionNotes =
+                (form.executionErrors ?? "").trim();
 
-            console.log("Saved entry:", savedEntry);
+            const finalExecutionErrors = [
+                executionMistakeText,
+                executionNotes
+                    ? `Notes: ${executionNotes}`
+                    : "",
+            ]
+                .filter(Boolean)
+                .join(" | ");
+
+            const savedEntry = await CreateJournalEntry({
+                ...form,
+                executionErrors: finalExecutionErrors,
+            });
 
             setEntries((currentEntries) => [
                 savedEntry,
@@ -135,20 +200,43 @@ function JournalEntryPage() {
             ]);
 
             setForm(initialform);
+            setSelectedExecutionMistakes([]);
             setShowSuccess(true);
 
             window.setTimeout(() => {
-                navigate("/journal", {replace: true});
-            }, 1500)
+                navigate("/journal", { replace: true });
+            }, 1500);
         } catch (error) {
-            console.error("Journal save failed:", error);
-
             setMessage(
-                error instanceof Error ? error.message: "Failed to save"
+                error instanceof Error
+                    ? error.message
+                    : "Failed to save journal entry."
             );
         } finally {
             setIsSaving(false);
         }
+    }
+
+    function toggleExecutionMistake(mistake: string) {
+        setSelectedExecutionMistakes((currentMistakes) => {
+            if (mistake === "No major mistake") {
+                return currentMistakes.includes("No major mistake")
+                    ? []
+                    : ["No major mistake"];
+            }
+
+            const withoutNoMistake = currentMistakes.filter(
+                (item) => item !== "No major mistake"
+            );
+
+            if (withoutNoMistake.includes(mistake)) {
+                return withoutNoMistake.filter(
+                    (item) => item !== mistake
+                );
+            }
+
+            return [...withoutNoMistake, mistake];
+        });
     }
 
     return (
@@ -191,14 +279,32 @@ function JournalEntryPage() {
 
                 <div className="form-row">
                     <label htmlFor="direction">Direction</label>
-                    <select
-                        name="direction"
-                        value={form.direction}
-                        onChange={handleChange}
-                    >
-                        <option value="Buy">Buy</option>
-                        <option value="Sell">Sell</option>
-                    </select>
+
+                    <div className="option-button-group">
+                        <button
+                            type="button"
+                            className={
+                                form.direction === "Buy"
+                                ? "option-button selected buy"
+                                : "option-button"
+                            }
+                            onClick={() => handleOptionButton("direction", "Buy")}
+                        >
+                            Buy
+                        </button>
+
+                        <button
+                            type="button"
+                            className={
+                                form.direction === "Sell"
+                                ? "option-button selected sell"
+                                : "option-button"
+                            }
+                            onClick={() => handleOptionButton("direction", "Sell")}
+                        >
+                            Sell
+                        </button>
+                    </div>
                     
                 </div>
 
@@ -328,49 +434,88 @@ function JournalEntryPage() {
 
                 <h3>Trade Execution</h3>
 
+
+
                 <div className="form-row">
-                    <label htmlFor="executionErrors">Execution Errors</label>
+                    <label>Execution Mistakes</label>
+
+                    <div className="mistake-button-grid">
+                        {executionMistakeOptions.map((mistake) => (
+                        <button
+                            key={mistake}
+                            type="button"
+                            className={
+                            selectedExecutionMistakes.includes(mistake)
+                                ? "mistake-button selected"
+                                : "mistake-button"
+                            }
+                            onClick={() => toggleExecutionMistake(mistake)}
+                        >
+                            {mistake}
+                        </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="form-row">
+                    <label htmlFor="executionErrors">
+                        Extra Notes
+                    </label>
+
                     <textarea
                         name="executionErrors"
                         value={form.executionErrors}
                         onChange={handleChange}
+                        placeholder="Add any extra details about what went wrong..."
                     />
-                    
                 </div>
                 
 
                 <div className="form-row">
                     <label htmlFor="confidence">Confidence</label>
-                    <select
-                        name="confidence"
-                        value={form.confidence}
-                        onChange={handleChange}
-                    >
-                        <option value="0" disabled>Select an option</option>
-                        <option value="1">Very low</option>
-                        <option value="2">Low</option>
-                        <option value="3">Neutral</option>
-                        <option value="4">High</option>
-                        <option value="5">Very high</option>
-                    </select>
+
+                    <div className="option-button-group">
+                        {confidenceOptions.map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            className={
+                            form.confidence === option.value
+                                ? "option-button selected"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                            handleOptionButton("confidence", option.value)
+                            }
+                        >
+                            {option.label}
+                        </button>
+                        ))}
+                    </div>
                 </div>
                 
 
 
                 <div className="form-row">
                     <label htmlFor="emotions">Emotions</label>
-                    <select
-                        name="emotions"
-                        value={form.emotions}
-                        onChange={handleChange}
-                    >
-                        <option value="Select" disabled>Select an option</option>
-                        <option value="Confident">Confident</option>
-                        <option value="Neutral">Neutral</option>
-                        <option value="Excited">Excited</option>
-                        <option value="Anxious">Anxious</option>
-                        <option value="Fearful">Fearful</option>
-                    </select>
+                    <div className="option-button-group">
+                        {emotionOptions.map((emotion) => (
+                        <button
+                            key={emotion}
+                            type="button"
+                            className={
+                            form.emotions === emotion
+                                ? "option-button selected"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                            handleOptionButton("emotions", emotion)
+                            }
+                        >
+                            {emotion}
+                        </button>
+                        ))}
+                    </div>
                 </div>
                 
                 
