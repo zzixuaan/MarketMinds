@@ -90,6 +90,34 @@ export async function getJournalEntries(): Promise<
   return data as JournalEntry[];
 }
 
+export async function getJournalEntry(entryId: string) {
+  const token = await getAuthToken();
+
+  const response = await fetch(
+    `${BACKEND_URL}/api/journal/${entryId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if(!response.ok) {
+    throw new Error(
+      data.detail ||
+        data.message ||
+        "Unable to load journal entries."
+
+    );
+  }
+
+  return data;
+}
+
+
 
 export async function CreateJournalEntry(
   entry: JournalEntryInput

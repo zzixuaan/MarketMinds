@@ -155,7 +155,6 @@ def place_trade(
             detail=str(e)
         )
 
-
 def get_trade_entries(user_id: str) -> list[dict[str, Any]]:
     documents = (
         db.collection("users")

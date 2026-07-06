@@ -80,7 +80,7 @@ function HomePage() {
                 <TopHoldingsCard />
                 <RecentTradesCard
                  entries={recentEntries}
-                 onViewAll={() => navigate("/journalviewallpage")}
+                 onViewAll={() => navigate("/recent-trades")}
                 />
             </div>
         </div>

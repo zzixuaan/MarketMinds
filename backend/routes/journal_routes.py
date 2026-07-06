@@ -8,6 +8,7 @@ from services.journal_service import (
     get_journal_entries,
     delete_journal_entry,
     update_journal_entries,
+    get_journal_entry_byid,
 )
 
 
@@ -72,6 +73,19 @@ async def list_entries(
     user_id: str = Depends(get_current_user_id),
 ):
     return get_journal_entries(user_id)
+
+
+@router.get("/{entry_id}")
+async def get_journal_entry(entry_id: str, user_id: str = Depends(get_current_user_id),):
+    entry = get_journal_entry_byid(entry_id, user_id)
+
+    if not entry:
+        raise HTTPException(
+            status_code=404,
+            detail="Journal entry not found."
+        )
+    
+    return entry
 
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT,)
 

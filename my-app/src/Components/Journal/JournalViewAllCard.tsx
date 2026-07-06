@@ -98,6 +98,7 @@ function JournalViewAllCard({entries, onViewAll, onDelete, deletingEntryId}: Jou
                                             : "Delete"}
                                     </button>
 
+
                                 </div>
                                
                             </article>

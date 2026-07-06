@@ -12,6 +12,9 @@ import { Onboarding } from "./temp pages/onboarding"
 import { Trade } from "./temp pages/trade"
 import { Portfolio } from "./temp pages/portfolio"
 import JournalViewAll from "./temp pages/journalviewallpage";
+import EditJournalEntryPage from "./temp pages/EditJournalEntryPage";
+import RecentTradesPage from "./temp pages/RecentTrades";
+
 
 function App() {
   return (
@@ -27,6 +30,8 @@ function App() {
         <Route path ="/journalentry" element = {<JournalEntry />} />
         <Route path ="/portfolio" element = {<Portfolio />} />
         <Route path ="/journalviewallpage" element = {<JournalViewAll />} />
+        <Route path ="/journal/:entryId/edit" element = {<EditJournalEntryPage />} />
+        <Route path ="/recent-trades" element = {<RecentTradesPage />} />
       </Routes>
     </BrowserRouter>
   );
