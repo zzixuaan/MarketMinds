@@ -124,6 +124,25 @@ def get_journal_entries(
         for journal_document in documents
     ]
 
+def get_journal_entry_byid(
+        entry_id: str,
+    user_id: str,
+) -> dict[str, Any] | None:
+    document = (
+        db.collection("users")
+        .document(user_id)
+        .collection("journalEntries")
+        .document(entry_id)
+        .get()
+    )
+
+    if not document.exists:
+        return None
+    
+    entry = document.to_dict() or {}
+    entry["id"] = document.id
+
+    return entry
 
 def delete_journal_entry (
     user_id: str,
