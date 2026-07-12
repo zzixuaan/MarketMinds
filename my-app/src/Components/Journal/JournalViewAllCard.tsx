@@ -11,12 +11,12 @@ export interface RecentJournalEntry {
 
 interface JournalEntriesCardProps {
     entries: RecentJournalEntry[];
-    onViewAll?: () => void;
+    onEntryClick?: (entryId: string) => void;
     onDelete?: (entryId: string) => void;
     deletingEntryId?: string | null;
 }
 
-function JournalViewAllCard({entries, onViewAll, onDelete, deletingEntryId}: JournalEntriesCardProps ) {
+function JournalViewAllCard({entries, onEntryClick, onDelete, deletingEntryId}: JournalEntriesCardProps ) {
     const navigate = useNavigate();
     
     return (
@@ -40,6 +40,7 @@ function JournalViewAllCard({entries, onViewAll, onDelete, deletingEntryId}: Jou
                             <article 
                                 className="journal-entry-row"
                                 key={entry.id}
+                                onClick={() => onEntryClick?.(entry.id)}
                             >
                                 <div className="journal-entry-date">
                                      {new Date(entry.date).toLocaleDateString("en-GB", {day: "2-digit", month: "short",})}
