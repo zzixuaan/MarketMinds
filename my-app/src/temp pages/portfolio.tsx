@@ -156,12 +156,17 @@ export const Portfolio = () => {
             bottomColor: "rgba(34,197,94,0.05)"
         });
 
-        area.setData(
-            history.map(h => ({
-                time: Math.floor(new Date(h.timestamp).getTime() / 1000) as any,
-                value: h.value
+        const chartData = history
+            .map(h => ({
+                time: Math.floor(new Date(h.timestamp).getTime() / 1000),
+                value: h.value,
             }))
-        );
+            .sort((a, b) => a.time - b.time)
+            .filter((point, index, array) =>
+                index === 0 || point.time !== array[index - 1].time
+            );
+
+        area.setData(chartData as any);
         chart.timeScale().fitContent();
 
         const resize = () => {
