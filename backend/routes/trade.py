@@ -118,8 +118,10 @@ def place_trade(
             "created_at": firestore.SERVER_TIMESTAMP,
         }
 
-        user_ref.collection("trades").add(trade_data)
+        #user_ref.collection("trades").add(trade_data)
 
+        trade_ref = user_ref.collection("trades").document()
+        trade_ref.set(trade_data)
         total_market_value = 0
 
         holdings_docs = user_ref.collection("holdings").stream()
@@ -144,7 +146,7 @@ def place_trade(
             "value": round(portfolio_value, 2),
         })
 
-        return {"success": True}
+        return {"success": True, "trade_path": trade_ref.path,}
 
     except HTTPException:
         raise

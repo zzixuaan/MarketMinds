@@ -123,7 +123,12 @@ function RecentTradesPage({onViewAll,}: RecentTradesPageProps ) {
                                         </span>  
 
                                         <span>
-                                            Entry ${entry?.price?.toFixed(2)}
+                                            Entry: ${entry?.price?.toFixed(2)}
+                                        </span>
+
+
+                                         <span>
+                                            Quantity: {entry?.quantity}
                                         </span>
                                     </div>
 

@@ -5,6 +5,11 @@ import { auth } from "../firebase-config";
 import "../cssPages/trade.css";
 import TopHeader from "../Components/General/TopHeader"
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL ||
+                    (window.location.hostname === "localhost"
+                    ? "http://localhost:8000"
+                    : "https://marketminds-i17q.onrender.com");
+
 export const Trade = () => {
     const [stockData, setStockData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
@@ -191,7 +196,7 @@ export const Trade = () => {
     const submitTrade = async () => {
         try {
             const token = await auth.currentUser!.getIdToken();
-            const response = await fetch("https://marketminds-i17q.onrender.com/api/trade", 
+            const response = await fetch(`${BACKEND_URL}/api/trade`, 
                                          { method: "POST", 
                                            headers: {"Content-Type" : "application/json",
                                                      "Authorization" : `Bearer ${token}`
