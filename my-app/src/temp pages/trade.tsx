@@ -5,6 +5,8 @@ import { auth } from "../firebase-config";
 import "../cssPages/trade.css";
 import TopHeader from "../Components/General/TopHeader"
 
+import { BASE_URL } from "../api";
+
 export const Trade = () => {
     const [stockData, setStockData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export const Trade = () => {
     useEffect (() => {
         const fetchMarketStatus = async () => {
             try {
-                const response = await fetch ("https://marketminds-i17q.onrender.com/api/market-status");
+                const response = await fetch (`${BASE_URL}/api/market-status`);
                 const data = await response.json();
                 setMarketStatus(data);
             } catch (err) {
@@ -40,7 +42,7 @@ export const Trade = () => {
     useEffect (() => {
         const fetchMarketIndices = async () => {
             try {
-                const response = await fetch ("https://marketminds-i17q.onrender.com/api/market-indices");
+                const response = await fetch (`${BASE_URL}/api/market-indices`);
                 const data = await response.json();
                 setMarketIndices(data);
             } catch (err) {
@@ -71,7 +73,7 @@ export const Trade = () => {
             }
 
             try {
-                const response = await fetch(`https://marketminds-i17q.onrender.com/api/autocomplete/${debouncedSearch}`);
+                const response = await fetch(`${BASE_URL}/api/autocomplete/${debouncedSearch}`);
                 const data = await response.json();
                 setSuggestions(data);
             } catch (err) {
@@ -98,7 +100,7 @@ export const Trade = () => {
             setLoading(true);
             setError("");
 
-            const response = await fetch(`https://marketminds-i17q.onrender.com/api/search/${symbol}`);
+            const response = await fetch(`${BASE_URL}/api/search/${symbol}`);
             if (!response.ok) {
                 throw new Error("Stock not found");
             }
@@ -106,7 +108,7 @@ export const Trade = () => {
             const data = await response.json();
             setStockData(data);
 
-            const chartResponse = await fetch(`https://marketminds-i17q.onrender.com/api/chart/${symbol}`);
+            const chartResponse = await fetch(`${BASE_URL}/api/chart/${symbol}`);
             const chartJson = await chartResponse.json();   
             setChartData(chartJson);
 
@@ -191,7 +193,7 @@ export const Trade = () => {
     const submitTrade = async () => {
         try {
             const token = await auth.currentUser!.getIdToken();
-            const response = await fetch("https://marketminds-i17q.onrender.com/api/trade", 
+            const response = await fetch(`${BASE_URL}/api/trade`, 
                                          { method: "POST", 
                                            headers: {"Content-Type" : "application/json",
                                                      "Authorization" : `Bearer ${token}`

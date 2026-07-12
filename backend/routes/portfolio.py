@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Header, HTTPException
 from config.firebase_admin import db, verify_token
+from firebase_admin import firestore
 
 from services.finnhub import get_quote
 
@@ -88,6 +89,47 @@ def get_portfolio(authorization : str = Header(None)):
 
 
         portfolio_value = cash + total_market_value
+
+        starting_capital = user_data.get("startingCapital", 0)
+
+        total_return = portfolio_value - starting_capital
+
+        total_return_percent = (
+            (total_return / starting_capital) * 100
+            if starting_capital > 0
+            else 0
+        )
+
+        history_docs = (
+            user_ref
+            .collection("portfolio_history")
+            .order_by(
+                "timestamp",
+                direction = firestore.Query.DESCENDING
+            )
+            .limit(2)
+            .stream()
+        )
+
+        history_values = []
+
+        for doc in history_docs:
+            data = doc.to_dict()
+            history_values.append(
+                data.get("value", 0)
+            )
+
+        if len(history_values) >= 2:
+            daily_change = history_values[0] - history_values[1]
+            daily_change_percent = (
+                (daily_change / history_values[1]) * 100
+                if history_values[1] > 0
+                else 0
+            )
+        else:
+            daily_change = 0
+            daily_change_percent = 0
+
         cash_weight = (
             round(cash/portfolio_value*100, 2)
             if portfolio_value > 0
@@ -100,9 +142,46 @@ def get_portfolio(authorization : str = Header(None)):
             else 0
         )
 
+        roi = unrealised_pnl_percent
+
+        largest_position = (
+            max(holdings, key=lambda h: h["weight"])
+            if holdings
+            else None
+        )
+
+        average_position = (
+            total_market_value / len(holdings)
+            if holdings
+            else 0
+        )
+
+        hhi = sum((holding["weight"] / 100) ** 2 for holding in holdings)
+        diversification_score = round((1 - hhi) * 100, 1)
+        diversification_score = max(0, min(diversification_score, 100))
+
+        if diversification_score >= 80:
+            risk_level = "Low"
+        elif diversification_score >= 60:
+            risk_level = "Medium"
+        else:
+            risk_level = "High"
+        if cash_weight >= 50 and risk_level != "Low":
+            risk_level = "Medium"
+
+        holdings.sort(
+             key=lambda h: h["marketValue"],
+            reverse=True
+        )
+
         return {
             "cash": round(cash, 2),
             "portfolioValue": round(portfolio_value, 2),
+            "startingCapital": round(starting_capital, 2),
+            "totalReturn": round(total_return, 2),
+            "totalReturnPercent": round(total_return_percent, 2),
+            "dailyChange": round(daily_change, 2),
+            "dailyChangePercent": round(daily_change_percent, 2),
             "marketValue": round(total_market_value, 2),
             "unrealisedPnl": round(unrealised_pnl, 2),
             "unrealisedPnlPercent": round(unrealised_pnl_percent, 2),
@@ -111,7 +190,13 @@ def get_portfolio(authorization : str = Header(None)):
             "totalCostBasis": round(total_cost_basis, 2),
             "bestHolding": best_holding,
             "worstHolding": worst_holding,
-            "cashWeight": cash_weight
+            "cashWeight": cash_weight,
+            "roi": round(roi, 2),
+            "largestPosition": largest_position,
+            "averagePosition": round(average_position, 2),
+            "diversificationScore": diversification_score,
+            "riskLevel": risk_level,
+
         }
 
     except HTTPException:

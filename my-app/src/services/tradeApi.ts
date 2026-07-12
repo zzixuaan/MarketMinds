@@ -1,8 +1,7 @@
 import { auth } from "../firebase-config";
 
-const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL ||
-  "https://marketminds-i17q.onrender.com";
+import { BASE_URL } from "../api";
+
 
 export interface TradeEntryInput {
     symbol: string
@@ -51,7 +50,7 @@ export async function getTradeEntries(): Promise<
   const token = await getAuthToken();
 
   const response = await fetch(
-    `${BACKEND_URL}/api/journal`,
+    `${BASE_URL}/api/journal`,
     {
       method: "GET",
       headers: {

@@ -8,6 +8,8 @@ import TopHeader from "../Components/General/TopHeader";
 
 import "../cssPages/portfolio.css";
 
+import { BASE_URL } from "../api";
+
 interface Holding {
     symbol: string;
     quantity: number;
@@ -23,19 +25,24 @@ interface Holding {
 interface PortfolioData {
     cash: number;
     cashWeight: number;
-
     portfolioValue: number;
+    startingCapital: number;
+    totalReturn: number;
+    totalReturnPercent: number;
+    dailyChange: number;
+    dailyChangePercent: number;
     marketValue: number;
-
     unrealisedPnl: number;
     unrealisedPnlPercent: number;
-
     holdings: Holding[];
-
     numberOfHoldings: number;
-
     bestHolding: Holding | null;
     worstHolding: Holding | null;
+    roi: number;
+    averagePosition: number;
+    diversificationScore: number;
+    riskLevel: string;
+    largestPosition: Holding | null;
 }
 
 interface HistoryPoint {
@@ -46,6 +53,8 @@ interface HistoryPoint {
 export const Portfolio = () => {
 
     const chartRef = useRef<HTMLDivElement>(null);
+    const chartInstance = useRef<any>(null);
+    const [selectedRange, setSelectedRange] = useState("ALL");
 
     const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
     const [history, setHistory] = useState<HistoryPoint[]>([]);
@@ -69,13 +78,13 @@ export const Portfolio = () => {
 
                 const [portfolioResponse, historyResponse] = await Promise.all([
 
-                    fetch("https://marketminds-i17q.onrender.com/api/portfolio", {
+                    fetch(`${BASE_URL}/api/portfolio`, {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
                     }),
 
-                    fetch("https://marketminds-i17q.onrender.com/api/portfolio/history", {
+                    fetch(`${BASE_URL}/api/portfolio/history`, {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
@@ -117,10 +126,8 @@ export const Portfolio = () => {
         if (history.length === 0) return;
 
         const chart = createChart(chartRef.current, {
-
             width: chartRef.current.clientWidth,
             height: 320,
-
             layout: {
                 background: {
                     type: ColorType.Solid,
@@ -133,8 +140,8 @@ export const Portfolio = () => {
                 vertLines: { color: "#rgba(255,255,255,0.05)" },
                 horzLines: { color: "#rgba(255,255,255,0.05)" }
             }
-
         });
+        chartInstance.current = chart;
 
         const area = chart.addSeries(AreaSeries, {
             lineColor: "#22C55E",
@@ -143,12 +150,12 @@ export const Portfolio = () => {
         });
 
         area.setData(
-
             history.map(h => ({
                 time: Math.floor(new Date(h.timestamp).getTime() / 1000) as any,
                 value: h.value
             }))
         );
+        chart.timeScale().fitContent();
 
         const resize = () => {
             chart.applyOptions({
@@ -201,48 +208,152 @@ export const Portfolio = () => {
         })),
     ];
 
+    // adjust chart
+    const changeChartRange = (range:string) => {
+        setSelectedRange(range);
+
+        const chart = chartInstance.current;
+        if (!chart) return;
+
+        if (range === "ALL") {
+            chart.timeScale().fitContent();
+            return;
+        }
+
+        const latestTime = Math.floor(new Date(history[history.length - 1].timestamp).getTime() / 1000);        
+        let seconds;
+
+        switch(range){
+            case "1D":
+                seconds = 24 * 60 * 60;
+                break;
+            case "1W":
+                seconds = 7 * 24 * 60 * 60;
+                break;
+            case "1M":
+                seconds = 30 * 24 * 60 * 60;
+                break;
+            case "1Y":
+                seconds = 365 * 24 * 60 * 60;
+                break;
+            default:
+                return;
+        }
+
+        chart.timeScale().setVisibleRange({
+            from: (latestTime - seconds) as any,
+            to: latestTime as any,
+        });
+    };
+
     return (
         <div className = "portfolio-page">
             <TopHeader />
             <div className = "portfolio-container">
                 <h1>Portfolio</h1>
-                <div className = "portfolio-summary">
-                    <div className = "summary-card">
+                <div className="portfolio-summary">
+                    <div className="summary-card">
                         <h3>Portfolio Value</h3>
                         <p>${portfolio.portfolioValue.toLocaleString()}</p>
                     </div>
-                    <div className = "summary-card">
-                        <h3>Cash</h3>
-                        <p>${portfolio.cash.toLocaleString()}</p>
-                        <small>{portfolio.cashWeight}%</small>
-                    </div>
-                    <div className = "summary-card">
+                    <div className="summary-card">
                         <h3>Market Value</h3>
                         <p>${portfolio.marketValue.toLocaleString()}</p>
                     </div>
-                    <div className = "summary-card">
+                    <div className="summary-card">
+                        <h3>Cash</h3>
+                        <p>${portfolio.cash.toLocaleString()}</p>
+                        <small>{portfolio.cashWeight}% of portfolio</small>
+                    </div>
+                    <div className="summary-card">
                         <h3>Total P/L</h3>
                         <p
                             style={{
-                                color:
-                                    portfolio.unrealisedPnl >= 0
-                                        ? "#22C55E"
-                                        : "#EF4444"
+                                color: portfolio.unrealisedPnl >= 0 ? "#22C55E" : "#EF4444",
                             }}
                         >
                             ${portfolio.unrealisedPnl.toLocaleString()}
                             <br />
-                            {portfolio.unrealisedPnlPercent}%
+                            {portfolio.unrealisedPnlPercent.toFixed(2)}%
                         </p>
                     </div>
+                    <div className="performance-row">
+                        <div className="summary-card performance-card">
+                            <h3>Total Return</h3>
+                            <div
+                                className="total-return-value"
+                                style={{
+                                    color: portfolio.totalReturn >= 0
+                                        ? "#22C55E"
+                                        : "#EF4444",
+                                }}
+                            >
+                                <strong>
+                                    {portfolio.totalReturn >= 0 ? "+" : ""}
+                                    ${portfolio.totalReturn.toLocaleString()}
+                                </strong>
+
+                                <span>
+                                    {portfolio.totalReturnPercent >= 0 ? "+" : ""}
+                                    {portfolio.totalReturnPercent.toFixed(2)}%
+                                </span>
+                            </div>
+                        </div>
+                        <div className="summary-card performance-card">
+                            <h3>Daily Change</h3>
+
+                            <div
+                                className="total-return-value"
+                                style={{
+                                    color: portfolio.dailyChange >= 0
+                                        ? "#22C55E"
+                                        : "#EF4444",
+                                }}
+                            >
+                                <strong>
+                                    {portfolio.dailyChange >= 0 ? "+" : ""}
+                                    ${Math.abs(portfolio.dailyChange).toLocaleString()}
+                                </strong>
+
+                                <span>
+                                    {portfolio.dailyChangePercent >= 0 ? "+" : ""}
+                                    {portfolio.dailyChangePercent.toFixed(2)}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className = "portfolio-chart">
-                    <h2>Portfolio Performance</h2>
+                <div className="portfolio-chart">
+                    <div className="chart-header">
+                        <h2>Portfolio Performance</h2>
+                        <div className="chart-buttons">
+                            <button
+                                className={selectedRange === "1D" ? "active" : ""}
+                                onClick={() => changeChartRange("1D")}
+                            >1D</button>                            
+                            <button
+                                className={selectedRange === "1W" ? "active" : ""}
+                                onClick={() => changeChartRange("1W")}
+                            >1W</button>
+                            <button
+                                className={selectedRange === "1M" ? "active" : ""}
+                                onClick={() => changeChartRange("1M")}
+                            >1M</button>                            
+                            <button
+                                className={selectedRange === "1Y" ? "active" : ""}
+                                onClick={() => changeChartRange("1Y")}
+                            >1Y</button>                            
+                            <button
+                                className={selectedRange === "ALL" ? "active" : ""}
+                                onClick={() => changeChartRange("ALL")}
+                            >ALL</button>
+                        </div>
+                    </div>
                     <div
                         ref={chartRef}
                         style={{
                             width: "100%",
-                            height: "320px"
+                            height: "320px",
                         }}
                     />
                 </div>
@@ -274,30 +385,103 @@ export const Portfolio = () => {
                             </ResponsiveContainer>
                         </div>
                     </div>
-                    <div className = "insights">
-                        <h2>Portfolio Insights</h2>
-                        <p>
-                            <strong>Best Performer</strong>
-                            <br />
-                            {portfolio.bestHolding
-                                ? `${portfolio.bestHolding.symbol} (${portfolio.bestHolding.pnlPercent}%)`
-                                : "-"}
-                        </p>
-                        <p>
-                            <strong>Worst Performer</strong>
-                            <br />
-                            {portfolio.worstHolding
-                                ? `${portfolio.worstHolding.symbol} (${portfolio.worstHolding.pnlPercent}%)`
-                                : "-"}
-                        </p>
-                        <p>
-                            <strong>Holdings</strong>
-                            <br />
-                            {portfolio.numberOfHoldings}
-                        </p>
+                    <div className="insights">
+                        <h2>Portfolio Analytics</h2>
+
+                        <div className="analytics-grid">
+
+                            <div className="analytics-item">
+                                <span>ROI</span>
+                                <strong
+                                    style={{
+                                        color: portfolio.roi >= 0 ? "#22C55E" : "#EF4444",
+                                    }}
+                                >
+                                    {portfolio.roi.toFixed(2)}%
+                                </strong>
+                            </div>
+
+                            <div className="analytics-item">
+                                <span>Risk Level</span>
+                                <strong
+                                    style={{
+                                        color:
+                                            portfolio.riskLevel === "Low"
+                                                ? "#22C55E"
+                                                : portfolio.riskLevel === "Medium"
+                                                ? "#F59E0B"
+                                                : "#EF4444",
+                                    }}
+                                >
+                                    {portfolio.riskLevel}
+                                </strong>
+                            </div>
+                            <div className="analytics-item">
+                                <span>Diversification</span>
+                                <strong>{portfolio.diversificationScore}/100</strong>
+                                <div className="score-bar">
+                                    <div
+                                        className="score-fill"
+                                        style={{
+                                            width: `${portfolio.diversificationScore}%`
+                                        }}
+                                    />
+                                </div>
+                                <small>
+                                    {portfolio.diversificationScore >= 80
+                                        ? "Excellent"
+                                        : portfolio.diversificationScore >= 60
+                                        ? "Good"
+                                        : "Concentrated"}
+                                </small>
+                            </div>
+                            <div className="analytics-item">
+                                <span>Holdings</span>
+                                <strong>{portfolio.numberOfHoldings}</strong>
+                            </div>
+
+                            <div className="analytics-item">
+                                <span>Largest Position</span>
+                                <strong>
+                                    {portfolio.largestPosition
+                                        ? `${portfolio.largestPosition.symbol} (${portfolio.largestPosition.weight.toFixed(1)}%)`
+                                        : "-"}
+                                </strong>
+                            </div>
+
+                            <div className="analytics-item">
+                                <span>Average Position</span>
+                                <strong>
+                                    ${portfolio.averagePosition.toLocaleString()}
+                                </strong>
+                            </div>
+
+                            <div className="analytics-item">
+                                <span>Best Performer</span>
+                                <strong
+                                    style={{ color: "#22C55E" }}
+                                >
+                                    {portfolio.bestHolding
+                                        ? `${portfolio.bestHolding.symbol} (+${portfolio.bestHolding.pnlPercent.toFixed(2)}%)`
+                                        : "-"}
+                                </strong>
+                            </div>
+
+                            <div className="analytics-item">
+                                <span>Worst Performer</span>
+                                <strong
+                                    style={{ color: "#EF4444" }}
+                                >
+                                    {portfolio.worstHolding
+                                        ? `${portfolio.worstHolding.symbol} (${portfolio.worstHolding.pnlPercent.toFixed(2)}%)`
+                                        : "-"}
+                                </strong>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-                <h2>Current Holdings</h2>
+                <h2>Current Holdings ({portfolio.numberOfHoldings})</h2>
                 <div className = "portfolio-table-wrapper">
                     <table className = "portfolio-table">
                         <thead>
@@ -331,16 +515,17 @@ export const Portfolio = () => {
                                     <td>${h.currentPrice.toLocaleString()}</td>
                                     <td>${h.marketValue.toLocaleString()}</td>
                                     <td
-                                        style={{
-                                            color:
-                                                h.unrealisedPnl >= 0
-                                                    ? "#22C55E"
-                                                    : "#EF4444"
-                                        }}
+                                        className={
+                                            h.unrealisedPnl >= 0
+                                                ? "positive"
+                                                : "negative"
+                                        }
                                     >
+                                        {h.unrealisedPnl >= 0 ? "+" : ""}
                                         ${h.unrealisedPnl.toLocaleString()}
                                         <br />
-                                        {h.pnlPercent}%
+                                        {h.pnlPercent >= 0 ? "+" : ""}
+                                        {h.pnlPercent.toFixed(2)}%
                                     </td>
                                 </tr>
                             ))}

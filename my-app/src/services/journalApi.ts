@@ -1,8 +1,6 @@
 import { auth } from "../firebase-config";
 
-const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL ||
-  "https://marketminds-i17q.onrender.com";
+import { BASE_URL } from "../api";
 
 export interface JournalEntryInput {
   title: string;
@@ -67,7 +65,7 @@ export async function getJournalEntries(): Promise<
   const token = await getAuthToken();
 
   const response = await fetch(
-    `${BACKEND_URL}/api/journal`,
+    `${BASE_URL}/api/journal`,
     {
       method: "GET",
       headers: {
@@ -94,7 +92,7 @@ export async function getJournalEntry(entryId: string) {
   const token = await getAuthToken();
 
   const response = await fetch(
-    `${BACKEND_URL}/api/journal/${entryId}`,
+    `${BASE_URL}/api/journal/${entryId}`,
     {
       method: "GET",
       headers: {
@@ -124,7 +122,7 @@ export async function CreateJournalEntry(
 ): Promise<JournalEntry> {
   const token = await getAuthToken();
 
-  const response = await fetch(`${BACKEND_URL}/api/journal`, {
+  const response = await fetch(`${BASE_URL}/api/journal`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -157,7 +155,7 @@ export async function deleteJournalEntry(
   const token= await getAuthToken();
 
   const response = await fetch(
-    `${BACKEND_URL}/api/journal/${entryId}`,
+    `${BASE_URL}/api/journal/${entryId}`,
     {
       method: "DELETE",
       headers: {
@@ -197,12 +195,12 @@ export async function updateJournalEntry(
   const token = await getAuthToken();
 
   const response = await fetch(
-    `${BACKEND_URL}/api/journal/${entryId}`,
+    `${BASE_URL}/api/journal/${entryId}`,
     {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(updates),
     }
