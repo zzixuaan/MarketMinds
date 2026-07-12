@@ -1,0 +1,91 @@
+.onboarding-page {
+
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+    box-sizing: border-box;
+
+    background: #070d1d;
+    color: white;
+
+    gap: 24px;
+
+}
+
+
+.onboarding-welcome {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 32px;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+}
+
+.onboarding-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 28px;
+
+    border: 1px solid #1f2a44;
+    border-radius: 20px;
+    background: #0b1428;
+
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+    
+}
+
+
+.onboarding-form p {
+    margin: 0 0 18px;
+    color: white;
+    font-size: 22px;
+    font-weight: 400;
+
+}
+
+
+.onboarding-form input {
+    width: 100%;
+    height: 54px;
+
+    padding: 0 16px;
+    margin-bottom: 18px;
+
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 0;
+
+    background: transparent;
+    color: #0f172a;
+
+    font-size: 17px;
+    outline: none;
+
+    color: white;
+
+    
+}
+
+.onboarding-form button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background: #7c5cff;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.onboarding-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
