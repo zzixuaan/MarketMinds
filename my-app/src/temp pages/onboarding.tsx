@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { auth, database } from "../firebase-config";
 import { doc, updateDoc } from "firebase/firestore";
 
+import "../cssPages/onboarding.css";
+
 export const Onboarding = () => {
     const [startingCapital, setStartingCapital] = useState("");
     const [loading, setLoading] = useState(false);
@@ -41,21 +43,28 @@ export const Onboarding = () => {
     };
 
     return (
-        <div>
-            <h1>Welcome to MarketMinds!</h1>
-            <p>Enter your starting capital:</p>
-            <input
-                type = "number"
-                min = "1"
-                step = "1"
-                value = {startingCapital}
-                onChange = {(e) => setStartingCapital(e.target.value)}
-                placeholder = "e.g. 5000"
-            />
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <button onClick = {handleFinish} disabled = {loading}>
-                {loading ? "Saving..." : "Submit"}
-            </button>
+        <div className="onboarding-page">
+            <div className="onboarding-welcome">
+                Welcome to MarketMinds!
+            </div>
+
+            <div className="onboarding-form">
+                <p>Enter your starting capital:</p>
+                <input
+                    type = "number"
+                    min = "1"
+                    step = "1"
+                    value = {startingCapital}
+                    onChange = {(e) => setStartingCapital(e.target.value)}
+                    placeholder = "e.g. 5000"
+                />
+                {error && <p style={{ color: "red" }}>{error}</p>}
+                <button onClick = {handleFinish} disabled = {loading}>
+                    {loading ? "Saving..." : "Submit"}
+                </button>
+                
+            </div>
+            
         </div>
     );
 };
