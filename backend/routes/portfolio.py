@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Depends
 from config.firebase_admin import db, verify_token
 from firebase_admin import firestore
+from auth import get_current_user_id
 
 from services.finnhub import get_quote, get_company_profile
 
@@ -268,4 +269,54 @@ def get_portfolio_history(authorization: str = Header(None)):
             status_code=500,
             detail=str(e)
         )
+    
+
+@router.get("/holdings/top")
+def get_top_holdings(
+    user_id: str = Depends(get_current_user_id),
+):
+    try:
+        documents = (
+            db.collection("users")
+                .document(user_id)
+                .collection("holdings")
+                .stream()
+        )
+
+        holding = [] #list
+
+        for document in documents:
+            holdings = document.to_dict()
+
+            symbol = holdings.get("symbol", document.id)
+            quantity = holdings.get("quantity", 0)
+            averageCost = holdings.get("averageCost", 0)
+
+            quote = get_quote(symbol)
+            current_price = quote.get("c") or averageCost
+
+            market_value = quantity * current_price
+
+            holding.append({
+                "id": document.id,
+                "symbol": symbol,
+                "quantity": quantity,
+                "averageCost": averageCost,
+                "currentPrice": current_price,
+                "marketValue": round(market_value, 2),
+            })
+
+        holding.sort(
+            key=lambda holding: holding["marketValue"],
+            reverse=True,
+        )
+
+        return holding[:3]
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=str(error),
+        )
+
      
