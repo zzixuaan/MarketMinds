@@ -117,7 +117,8 @@ function Journal() {
             {!isLoading && !error && (
                 <JournalEntriesCard
                 entries={recentEntries}
-                onViewAll={() => navigate("/journalviewallpage")}
+                onEntryClick={(entryId) => navigate(`/journal/${entryId}`)}
+                onViewAll={() => navigate(`/journalviewallpage`)}
                 onDelete={handleDeleteEntry}
                 deletingEntryId={deletingEntryId}
                 />

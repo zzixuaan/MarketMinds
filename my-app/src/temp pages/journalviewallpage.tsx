@@ -6,6 +6,7 @@ import "../cssPages/Journal.css";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase-config";
+import { useNavigate } from "react-router-dom";
 
 import {
   getJournalEntries,
@@ -21,6 +22,7 @@ function JournalViewAll() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
     const [deletingEntryId, setDeletingEntryId] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(
@@ -114,9 +116,9 @@ function JournalViewAll() {
             {!isLoading && !error && (
                 <JournalViewAllCard
                 entries={recentEntries}
-                onViewAll={() => {
-                    console.log("Open all journal entries");
-                }}
+                onEntryClick={(entryId) => 
+                    navigate(`/journal/${entryId}`)
+                }
                 onDelete={handleDeleteEntry}
                 deletingEntryId={deletingEntryId}
                 />

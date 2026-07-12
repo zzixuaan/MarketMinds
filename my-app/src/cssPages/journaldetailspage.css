@@ -1,0 +1,167 @@
+.entry-details-card {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 32px;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
+
+  color: white;
+}
+
+.entry-details-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-start;
+
+    margin-bottom: 32px;
+}
+
+.entry-details-label {
+    margin: 0 0 8px;
+    color: #9ca7c7;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+}
+
+.entry-details-header h1 {
+    margin: 0;
+    font-size: 36px;
+}
+
+.entry-details-subtitle {
+    margin-top: 8px;
+    color: #b8c2df;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+.direction-badge {
+    padding: 10px 18px;
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
+
+.direction-badge.buy {
+    color: #5ef0b2;
+    background: rgba(52, 211, 153, 0.16);
+    border: 1px solid rgba(52, 211, 153, 0.45);
+}
+
+.direction-badge.sell {
+    color: #ff8ea1;
+    background: rgba(255, 92, 122, 0.16);
+    border: 1px solid rgba(255, 92, 122, 0.45);
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+
+    margin-bottom: 32px;
+}
+
+.detail-item {
+    padding: 18px;
+
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+}
+
+.detail-item span {
+    display: block;
+    margin-bottom: 8px;
+
+    color: #9ca7c7;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.detail-item strong {
+    color: white;
+    font-size: 18px;
+}
+
+.details-section {
+    margin-top: 26px;
+    padding-top: 22px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.details-section h2 {
+    margin: 0 0 12px;
+    font-size: 22px;
+}
+
+.details-section h3 {
+    margin: 18px 0 8px;
+    color: #cbd5f2;
+}
+
+.details-section p {
+    color: #c3cce6;
+    line-height: 1.7;
+}
+
+.mistake-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mistake-detail-chip {
+    padding: 9px 14px;
+
+    color: #d8dfff;
+    background: rgba(121, 87, 255, 0.18);
+
+    border: 1px solid rgba(121, 87, 255, 0.45);
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.entry-details-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 32px;
+}
+
+.back-button {
+    margin-left: 24px;
+}
+
+.journalentrypage button {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .entry-details-header {
+        flex-direction: column;
+    }
+}
+
