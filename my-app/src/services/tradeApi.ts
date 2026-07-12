@@ -50,7 +50,7 @@ export async function getTradeEntries(): Promise<
   const token = await getAuthToken();
 
   const response = await fetch(
-    `${BASE_URL}/api/journal`,
+    `${BASE_URL}/api/trade`,
     {
       method: "GET",
       headers: {

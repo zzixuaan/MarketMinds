@@ -1,0 +1,127 @@
+.top-holdings-card {
+    /*width: 100%;
+    padding: 24px;
+    box-sizing: border-box;
+
+    border: 1px solid #26344d;
+    border-radius: 18px;
+    background: #111b31;
+    color: #ffffff;
+    */
+
+    background: linear-gradient(145deg, #121a31, #0d1426);
+    color: white;
+    border-radius: 28px;
+    padding: 28px;
+    margin: 20px;
+    
+    box-shadow:
+      0 22px 45px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: "Manrope", system-ui, sans-serif;
+
+}
+
+.top-holdings-header {
+    margin-bottom: 20px;
+}
+
+.top-holdings-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.top-holdings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.top-holding-row {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+
+    padding: 18px 20px;
+
+    background: rgba(3, 10, 29, 0.78);
+    border: 1px solid rgba(111, 132, 181, 0.17);
+    border-radius: 16px;
+
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+}
+
+.top-holding-row:hover {
+    transform: translateY(-2px);
+    background: rgba(7, 15, 38, 0.95);
+    border-color: rgba(126, 92, 255, 0.45);
+}
+
+.holding-symbol,
+.holding-price,
+.holding-value {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.holding-price,
+.holding-value {
+    text-align: right;
+}
+
+.holding-symbol strong,
+.holding-price strong,
+.holding-value strong {
+    font-size: 17px;
+}
+
+.holding-symbol span,
+.holding-price span {
+    color: #96a7c5;
+    font-size: 13px;
+}
+
+.holding-profit {
+    color: #34d399;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.holding-loss {
+    color: #fb7185;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.holdings-message {
+    margin: 0;
+    padding: 30px;
+    color: #96a7c5;
+    text-align: center;
+}
+
+.holdings-error {
+    margin: 0;
+    color: #fb7185;
+}
+
+@media (max-width: 650px) {
+    .top-holding-row {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .holding-value {
+        grid-column: 1 / -1;
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+

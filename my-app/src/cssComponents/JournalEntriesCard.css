@@ -18,6 +18,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.journal-entries-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+    font-family: "Manrope", system-ui, sans-serif;
 }
 
 
@@ -34,27 +42,27 @@
 
 
 .journal-entries-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;  
 }
 
 .journal-entry-row {
-  display: grid;
-  grid-template-columns: 110px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 16px;
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
 
-  padding: 18px 20px;
+    padding: 18px 20px;
 
-  background: rgba(3, 10, 29, 0.78);
-  border: 1px solid rgba(111, 132, 181, 0.17);
-  border-radius: 16px;
+    background: rgba(3, 10, 29, 0.78);
+    border: 1px solid rgba(111, 132, 181, 0.17);
+    border-radius: 16px;
 
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
 }
 
 .journal-entry-row:hover {
