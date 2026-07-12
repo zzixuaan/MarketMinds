@@ -22,6 +22,12 @@ interface Holding {
     weight: number;
 }
 
+interface SectorAllocation {
+    sector: string;
+    value: number;
+    percentage: number;
+}
+
 interface PortfolioData {
     cash: number;
     cashWeight: number;
@@ -43,6 +49,7 @@ interface PortfolioData {
     diversificationScore: number;
     riskLevel: string;
     largestPosition: Holding | null;
+    sectorAllocation: SectorAllocation[];
 }
 
 interface HistoryPoint {
@@ -251,21 +258,21 @@ export const Portfolio = () => {
             <TopHeader />
             <div className = "portfolio-container">
                 <h1>Portfolio</h1>
-                <div className="portfolio-summary">
-                    <div className="summary-card">
+                <div className = "portfolio-summary">
+                    <div className = "summary-card">
                         <h3>Portfolio Value</h3>
                         <p>${portfolio.portfolioValue.toLocaleString()}</p>
                     </div>
-                    <div className="summary-card">
+                    <div className = "summary-card">
                         <h3>Market Value</h3>
                         <p>${portfolio.marketValue.toLocaleString()}</p>
                     </div>
-                    <div className="summary-card">
+                    <div className = "summary-card">
                         <h3>Cash</h3>
                         <p>${portfolio.cash.toLocaleString()}</p>
                         <small>{portfolio.cashWeight}% of portfolio</small>
                     </div>
-                    <div className="summary-card">
+                    <div className = "summary-card">
                         <h3>Total P/L</h3>
                         <p
                             style={{
@@ -277,11 +284,11 @@ export const Portfolio = () => {
                             {portfolio.unrealisedPnlPercent.toFixed(2)}%
                         </p>
                     </div>
-                    <div className="performance-row">
-                        <div className="summary-card performance-card">
+                    <div className = "performance-row">
+                        <div className = "summary-card performance-card">
                             <h3>Total Return</h3>
                             <div
-                                className="total-return-value"
+                                className = "total-return-value"
                                 style={{
                                     color: portfolio.totalReturn >= 0
                                         ? "#22C55E"
@@ -299,11 +306,11 @@ export const Portfolio = () => {
                                 </span>
                             </div>
                         </div>
-                        <div className="summary-card performance-card">
+                        <div className = "summary-card performance-card">
                             <h3>Daily Change</h3>
 
                             <div
-                                className="total-return-value"
+                                className = "total-return-value"
                                 style={{
                                     color: portfolio.dailyChange >= 0
                                         ? "#22C55E"
@@ -323,10 +330,10 @@ export const Portfolio = () => {
                         </div>
                     </div>
                 </div>
-                <div className="portfolio-chart">
-                    <div className="chart-header">
+                <div className = "portfolio-chart">
+                    <div className = "chart-header">
                         <h2>Portfolio Performance</h2>
-                        <div className="chart-buttons">
+                        <div className = "chart-buttons">
                             <button
                                 className={selectedRange === "1D" ? "active" : ""}
                                 onClick={() => changeChartRange("1D")}
@@ -357,127 +364,146 @@ export const Portfolio = () => {
                         }}
                     />
                 </div>
-                <div className = "portfolio-bottom">
-                    <div className = "allocation">
-                        <h2>Allocation</h2>
-                        <div className = "allocation-chart">
-                            <ResponsiveContainer width="100%" height={280}>
-                                <PieChart>
-                                    <Pie
-                                        data={allocationData}
-                                        dataKey="value"
-                                        nameKey="name"
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={70}
-                                        outerRadius={105}
-                                        paddingAngle={2}
-                                        fill="#3B82F6"
-                                    />
-                                    <Tooltip
-                                        formatter={(value) => [
-                                            `$${Number(value).toLocaleString()}`,
-                                            "Value",
-                                        ]}
-                                    />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
+                <div className = "portfolio-dashboard">
+                    <div className = "dashboard-left">
+                        <div className = "allocation">
+                            <h2>Allocation</h2>
+                            <div className = "allocation-chart">
+                                <ResponsiveContainer width="100%" height={280}>
+                                    <PieChart>
+                                        <Pie
+                                            data={allocationData}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={70}
+                                            outerRadius={105}
+                                            paddingAngle={2}
+                                            fill="#3B82F6"
+                                        />
+                                        <Tooltip
+                                            formatter={(value) => [
+                                                `$${Number(value).toLocaleString()}`,
+                                                "Value",
+                                            ]}
+                                        />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+                        <div className = "sector-card">
+                            <h2>Sector Allocation</h2>
+                            {portfolio.sectorAllocation.map((sector) => (
+                                <div className = "sector-row" key={sector.sector}>
+                                    <div className = "sector-header">
+                                        <span>{sector.sector}</span>
+                                        <span>{sector.percentage.toFixed(1)}%</span>
+                                    </div>
+                                    <div className = "sector-bar">
+                                        <div
+                                            className ="sector-fill"
+                                            style={{
+                                                width: `${sector.percentage}%`
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                    <div className="insights">
-                        <h2>Portfolio Analytics</h2>
-
-                        <div className="analytics-grid">
-
-                            <div className="analytics-item">
-                                <span>ROI</span>
-                                <strong
-                                    style={{
-                                        color: portfolio.roi >= 0 ? "#22C55E" : "#EF4444",
-                                    }}
-                                >
-                                    {portfolio.roi.toFixed(2)}%
-                                </strong>
-                            </div>
-
-                            <div className="analytics-item">
-                                <span>Risk Level</span>
-                                <strong
-                                    style={{
-                                        color:
-                                            portfolio.riskLevel === "Low"
-                                                ? "#22C55E"
-                                                : portfolio.riskLevel === "Medium"
-                                                ? "#F59E0B"
-                                                : "#EF4444",
-                                    }}
-                                >
-                                    {portfolio.riskLevel}
-                                </strong>
-                            </div>
-                            <div className="analytics-item">
-                                <span>Diversification</span>
-                                <strong>{portfolio.diversificationScore}/100</strong>
-                                <div className="score-bar">
-                                    <div
-                                        className="score-fill"
+                    <div className = "dashboard-right">
+                        <div className = "score-card">
+                            <h2>Portfolio score</h2>
+                        </div>
+                        <div className = "insights">
+                            <h2>Portfolio Analytics</h2>
+                            <div className = "analytics-grid">
+                                <div className = "analytics-item">
+                                    <span>ROI</span>
+                                    <strong
                                         style={{
-                                            width: `${portfolio.diversificationScore}%`
+                                            color: portfolio.roi >= 0 ? "#22C55E" : "#EF4444",
                                         }}
-                                    />
+                                    >
+                                        {portfolio.roi.toFixed(2)}%
+                                    </strong>
                                 </div>
-                                <small>
-                                    {portfolio.diversificationScore >= 80
-                                        ? "Excellent"
-                                        : portfolio.diversificationScore >= 60
-                                        ? "Good"
-                                        : "Concentrated"}
-                                </small>
-                            </div>
-                            <div className="analytics-item">
-                                <span>Holdings</span>
-                                <strong>{portfolio.numberOfHoldings}</strong>
-                            </div>
+                                <div className = "analytics-item">
+                                    <span>Risk Level</span>
+                                    <strong
+                                        style={{
+                                            color:
+                                                portfolio.riskLevel === "Low"
+                                                    ? "#22C55E"
+                                                    : portfolio.riskLevel === "Medium"
+                                                    ? "#F59E0B"
+                                                    : "#EF4444",
+                                        }}
+                                    >
+                                        {portfolio.riskLevel}
+                                    </strong>
+                                </div>
+                                <div className = "analytics-item">
+                                    <span>Diversification</span>
+                                    <strong>{portfolio.diversificationScore}/100</strong>
+                                    <div className = "score-bar">
+                                        <div
+                                            className = "score-fill"
+                                            style={{
+                                                width: `${portfolio.diversificationScore}%`
+                                            }}
+                                        />
+                                    </div>
+                                    <small>
+                                        {portfolio.diversificationScore >= 80
+                                            ? "Excellent"
+                                            : portfolio.diversificationScore >= 60
+                                            ? "Good"
+                                            : "Concentrated"}
+                                    </small>
+                                </div>
+                                <div className = "analytics-item">
+                                    <span>Holdings</span>
+                                    <strong>{portfolio.numberOfHoldings}</strong>
+                                </div>
+                                <div className = "analytics-item">
+                                    <span>Largest Position</span>
+                                    <strong>
+                                        {portfolio.largestPosition
+                                            ? `${portfolio.largestPosition.symbol} (${portfolio.largestPosition.weight.toFixed(1)}%)`
+                                            : "-"}
+                                    </strong>
+                                </div>
+                                <div className = "analytics-item">
+                                    <span>Average Position</span>
+                                    <strong>
+                                        ${portfolio.averagePosition.toLocaleString()}
+                                    </strong>
+                                </div>
+                                <div className = "analytics-item">
+                                    <span>Best Performer</span>
+                                    <strong
+                                        style={{ color: "#22C55E" }}
+                                    >
+                                        {portfolio.bestHolding
+                                            ? `${portfolio.bestHolding.symbol} (+${portfolio.bestHolding.pnlPercent.toFixed(2)}%)`
+                                            : "-"}
+                                    </strong>
+                                </div>
+                                <div className = "analytics-item">
+                                    <span>Worst Performer</span>
+                                    <strong
+                                        style={{ color: "#EF4444" }}
+                                    >
+                                        {portfolio.worstHolding
+                                            ? `${portfolio.worstHolding.symbol} (${portfolio.worstHolding.pnlPercent.toFixed(2)}%)`
+                                            : "-"}
+                                    </strong>
+                                </div>
 
-                            <div className="analytics-item">
-                                <span>Largest Position</span>
-                                <strong>
-                                    {portfolio.largestPosition
-                                        ? `${portfolio.largestPosition.symbol} (${portfolio.largestPosition.weight.toFixed(1)}%)`
-                                        : "-"}
-                                </strong>
                             </div>
-
-                            <div className="analytics-item">
-                                <span>Average Position</span>
-                                <strong>
-                                    ${portfolio.averagePosition.toLocaleString()}
-                                </strong>
-                            </div>
-
-                            <div className="analytics-item">
-                                <span>Best Performer</span>
-                                <strong
-                                    style={{ color: "#22C55E" }}
-                                >
-                                    {portfolio.bestHolding
-                                        ? `${portfolio.bestHolding.symbol} (+${portfolio.bestHolding.pnlPercent.toFixed(2)}%)`
-                                        : "-"}
-                                </strong>
-                            </div>
-
-                            <div className="analytics-item">
-                                <span>Worst Performer</span>
-                                <strong
-                                    style={{ color: "#EF4444" }}
-                                >
-                                    {portfolio.worstHolding
-                                        ? `${portfolio.worstHolding.symbol} (${portfolio.worstHolding.pnlPercent.toFixed(2)}%)`
-                                        : "-"}
-                                </strong>
-                            </div>
-
                         </div>
                     </div>
                 </div>

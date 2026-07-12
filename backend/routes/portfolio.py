@@ -2,7 +2,7 @@ from fastapi import APIRouter, Header, HTTPException
 from config.firebase_admin import db, verify_token
 from firebase_admin import firestore
 
-from services.finnhub import get_quote
+from services.finnhub import get_quote, get_company_profile
 
 router = APIRouter()
 
@@ -34,6 +34,7 @@ def get_portfolio(authorization : str = Header(None)):
         holdings = []
         total_cost_basis = 0
         total_market_value = 0
+        sector_totals = {}
 
         for doc in holdings_docs:
 
@@ -43,6 +44,12 @@ def get_portfolio(authorization : str = Header(None)):
             quantity = holding.get("quantity", 0)
             average_cost = holding.get("averageCost", 0)
 
+            sector = holding.get("sector")
+            if not sector: 
+                profile = get_company_profile(symbol)
+                sector = profile.get("finnhubIndustry", "Unknown")
+                doc.reference.update({"sector": sector})
+
             quote = get_quote(symbol)
             current_price = quote.get("c", 0)
 
@@ -50,6 +57,7 @@ def get_portfolio(authorization : str = Header(None)):
                 current_price = average_cost
 
             market_value = quantity*current_price
+            sector_totals[sector] = (sector_totals.get(sector, 0) + market_value)
             cost_basis = quantity*average_cost
 
             unrealised_pnl = market_value - cost_basis
@@ -89,6 +97,21 @@ def get_portfolio(authorization : str = Header(None)):
 
 
         portfolio_value = cash + total_market_value
+
+        sector_allocation = []
+        for sector, value in sector_totals.items():
+            sector_allocation.append({
+                "sector": sector,
+                "value": round(value, 2),
+                "percentage": round(
+                    value / portfolio_value * 100,
+                    1
+                ) if portfolio_value > 0 else 0
+            })
+        sector_allocation.sort(
+            key=lambda x: x["value"],
+            reverse=True
+        )
 
         starting_capital = user_data.get("startingCapital", 0)
 
@@ -196,7 +219,7 @@ def get_portfolio(authorization : str = Header(None)):
             "averagePosition": round(average_position, 2),
             "diversificationScore": diversification_score,
             "riskLevel": risk_level,
-
+            "sectorAllocation": sector_allocation,
         }
 
     except HTTPException:
