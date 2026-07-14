@@ -27,12 +27,14 @@ import type {
 
 const numericFields = new Set([
   "entryPrice",
+  "exitPrice",
+  "quantity",
   "positionSize",
-  "riskToReward",
+  //"riskToReward",
   "stopLoss",
   "takeProfit",
-  "maxFavourableExcursion",
-  "maxAdverseExcursion",
+  //"maxFavourableExcursion",
+  //"maxAdverseExcursion",
   "confidence",
   "pnl",
 ]);
@@ -89,6 +91,38 @@ function EditJournalEntryPage() {
                     "No major mistake",
                 ];
 
+    function calculateRiskReward(
+        entryPrice: number,
+        stopLoss: number,
+        takeProfit: number
+    ): number | null {
+        const risk = entryPrice - stopLoss;
+        const reward = takeProfit - entryPrice;
+
+        return Number((reward/risk).toFixed(2));
+    }
+
+
+    function calculatePosSize(
+        quantity: number,
+        entryPrice: number,
+    ): number | null {
+        return Number((quantity * entryPrice).toFixed(2));
+    }
+
+
+    function calculatePnL(
+        quantity: number,
+        entryPrice: number,
+        exitPrice: number | null,
+    ): number | null {
+        if (exitPrice === null) {
+            return null;
+        }
+        return Number((quantity * (exitPrice - entryPrice)).toFixed(2))
+
+    }
+
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(
         auth,
@@ -119,8 +153,10 @@ function EditJournalEntryPage() {
                 title: entry.title ?? "",
                 ticker: entry.ticker ?? "",
                 direction: entry.direction ?? "Buy",
+                tradeStatus: entry.tradeStatus ?? "Open",
 
                 entryPrice: entry.entryPrice ?? 0,
+                quantity: entry.quantity ?? 0,
                 positionSize: entry.positionSize ?? 0,
                 timePeriod: entry.timePeriod ?? "",
                 riskToReward:
@@ -133,15 +169,10 @@ function EditJournalEntryPage() {
                 executionErrors:
                 parsedExecutionErrors.notes,
 
-                maxFavourableExcursion:
-                entry.maxFavourableExcursion ?? 0,
-
-                maxAdverseExcursion:
-                entry.maxAdverseExcursion ?? 0,
-
                 confidence: entry.confidence ?? 0,
                 emotions: entry.emotions ?? "",
-                pnl: entry.pnl ?? 0,
+                pnl: entry.pnl ?? null,
+                exitPrice: entry.exitPrice ?? null,
 
                 lessonsLearnt:
                 entry.lessonsLearnt ?? "",
@@ -200,12 +231,26 @@ function EditJournalEntryPage() {
                 return currentForm;
             }
 
+            if (name === "tradeStatus" && value === "Open") {
+                setSelectedExecutionMistakes([]);
+
             return {
                 ...currentForm,
-            [   name]: value,
+                tradeStatus: "Open",
+                exitPrice: null,
+                pnl: null,
+                executionErrors: "",
+                lessonsLearnt: "",
             } as JournalEntryInput;
-        });
-    }
+        }
+
+        return {
+            ...currentForm,
+            [name]: value,
+        } as JournalEntryInput;
+
+    });
+}
 
     async function handleSubmit(
         event: FormEvent<HTMLFormElement>
@@ -213,67 +258,119 @@ function EditJournalEntryPage() {
         event.preventDefault();
 
         if (!entryId || !form) {
-        return;
+            return;
         }
 
         setMessage("");
 
         if (!form.ticker.trim()) {
-        setMessage(
-            "Please enter a ticker symbol."
-        );
-        return;
+            setMessage(
+                "Please enter a ticker symbol."
+            );
+            return;
         }
 
         if (!form.thesis.trim()) {
-        setMessage(
-            "Please enter a trade thesis."
-        );
-        return;
+            setMessage(
+                "Please enter a trade thesis."
+            );
+            return;
+        }
+
+        
+        if (form.confidence < 1 || form.confidence > 5) {
+            setMessage("Please select a confidence level.");
+            return;
+        }
+
+        if (!form.emotions) {
+            setMessage("Please select an emotion.");
+            return;
+        }
+
+        const calculatedRiskReward = calculateRiskReward(
+                                        form.entryPrice,
+                                        form.stopLoss,
+                                        form.takeProfit
+                                        );
+
+        if (calculatedRiskReward === null) {
+            setMessage(
+                "Please enter a valid stop-loss and take-profit for this trade direction."
+            );
+            
+            return;
+        }
+
+        const calculatedPosSize = calculatePosSize(form.quantity, form.entryPrice);
+
+        if (calculatedPosSize === null) {
+            setMessage(
+                "Please enter a valid quantity and entry price for this trade direction."
+            );
+            
+            return;
+        }
+
+        const calculatedPnL = form.tradeStatus === "Closed"
+                                ? calculatePnL(form.quantity, form.entryPrice, form.exitPrice)
+                                : null;
+        
+        if (form.tradeStatus === "Closed" && calculatedPnL === null) {
+            setMessage(
+                "Please enter a valid exit price for this trade direction."
+            );
+            
+            return;
         }
 
         try {
-        setIsSaving(true);
+            setIsSaving(true);
 
-        const executionMistakeText =
-            selectedExecutionMistakes.join(", ");
+            const executionMistakeText =
+                selectedExecutionMistakes.join(", ");
 
-        const executionNotes =
-            (form.executionErrors ?? "").trim();
+            const executionNotes =
+                (form.executionErrors ?? "").trim();
 
-        const finalExecutionErrors = [
-            executionMistakeText,
-            executionNotes
-                ? `Notes: ${executionNotes}`
-                : "",
-        ]
-            .filter(Boolean)
-            .join(" | ");
+            const finalExecutionErrors = form.tradeStatus === "Closed"
+                                            ? [
+                                                selectedExecutionMistakes.join(", "),
+                                                (form.executionErrors ?? "").trim() 
+                                                    ? `Notes: ${(form.executionErrors ?? "").trim()}`
+                                                    : "",
+                                            ]
+                                                .filter(Boolean)
+                                                .join(" | ")
+                                            : "";
 
-        await updateJournalEntry(
-            entryId,
-            {
-                ...form,
-                executionErrors: finalExecutionErrors,
-            }
-        );
+            await updateJournalEntry(
+                entryId,
+                {
+                    ...form,
+                    positionSize: calculatedPosSize,
+                    pnl: calculatedPnL,
+                    riskToReward: calculatedRiskReward,
+                    executionErrors: finalExecutionErrors,
+                }
+            );
 
-        window.alert(
-            "Journal entry updated successfully."
-        );
+            window.alert(
+                "Journal entry updated successfully."
+            );
 
-        navigate(
-            `/journal/${entryId}`,
-            { replace: true }
-        );
+            navigate(
+                `/journal/${entryId}`,
+                { replace: true }
+            );
         } catch (error) {
-        setMessage(
-            error instanceof Error
-            ? error.message
-            : "Unable to update journal entry."
+            setMessage(
+                error instanceof Error
+                ? error.message
+                : "Unable to update journal entry."
         );
         } finally {
-        setIsSaving(false);
+            setIsSaving(false);
         }
     }
 
@@ -374,374 +471,414 @@ function EditJournalEntryPage() {
         };
     }
 
+    const previewRiskToReward = calculateRiskReward(
+                                form.entryPrice,
+                                form.stopLoss,
+                                form.takeProfit
+                                );
+
 
     return (
         <main className="journalentrypage">
             <TopHeader />
 
-        <h1>Edit Journal Entry</h1>
+            <h1>Edit Journal Entry</h1>
 
-        {message && (
-            <p className="form-error-message">
-            {message}
-            </p>
-        )}
+            {message && (
+                <p className="form-error-message">
+                {message}
+                </p>
+            )}
 
-        <form
-            className="journalform"
-            onSubmit={handleSubmit}
-        >
-            <div className="form-row">
-            <label htmlFor="title">
-                Entry title
-            </label>
+            <form
+                className="journalform"
+                onSubmit={handleSubmit}
+            >
+                <div className="form-row">
+                    <label htmlFor="title">
+                        Entry title
+                    </label>
 
-            <input
-                id="title"
-                type="text"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-            />
-            </div>
+                    <input
+                        id="title"
+                        type="text"
+                        name="title"
+                        value={form.title}
+                        onChange={handleChange}
+                    />
+                </div>
 
-            <div className="form-row">
-            <label htmlFor="ticker">
-                Ticker
-            </label>
+                <div className="form-row">
+                    <label htmlFor="ticker">
+                        Ticker
+                    </label>
 
-            <input
-                id="ticker"
-                type="text"
-                name="ticker"
-                value={form.ticker}
-                onChange={handleChange}
-                required
-            />
-            </div>
+                    <input
+                        id="ticker"
+                        type="text"
+                        name="ticker"
+                        value={form.ticker}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className="form-row">
+                    <label>Trade Status</label>
+
+                    <div className="option-button-group">
+                        <button
+                            type="button"
+                            className={
+                                form.tradeStatus === "Open"
+                                ? "option-button selected open"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                                handleOptionButton("tradeStatus", "Open")
+                            }
+                        >
+                        Open
+                        </button>
+
+                        <button
+                            type="button"
+                            className={
+                                form.tradeStatus === "Closed"
+                                ? "option-button selected closed"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                                handleOptionButton("tradeStatus", "Closed")
+                            }
+                        >
+                        Closed
+                        </button>
+                    </div>
+                </div>
 
 
-            <div className="form-row">
-                <label>Direction</label>
+                <div className="form-row">
+                    <label>Direction</label>
 
-                <div className="option-button-group">
-                    <button
-                        type="button"
-                        className={
-                            form.direction === "Buy"
-                            ? "option-button selected buy"
-                            : "option-button"
-                        }
-                        onClick={() =>
-                            handleOptionButton("direction", "Buy")
-                        }
-                    >
-                    Buy
-                    </button>
+                    <div className="option-button-group">
+                        <button
+                            type="button"
+                            className={
+                                form.direction === "Buy"
+                                ? "option-button selected buy"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                                handleOptionButton("direction", "Buy")
+                            }
+                        >
+                        Buy
+                        </button>
 
-                    <button
-                        type="button"
-                        className={
-                            form.direction === "Sell"
-                            ? "option-button selected sell"
-                            : "option-button"
-                        }
-                        onClick={() =>
-                            handleOptionButton("direction", "Sell")
-                        }
-                    >
-                    Sell
+                        <button
+                            type="button"
+                            className={
+                                form.direction === "Sell"
+                                ? "option-button selected sell"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                                handleOptionButton("direction", "Sell")
+                            }
+                        >
+                        Sell
+                        </button>
+                    </div>
+                </div>
+
+                <div className="form-row">
+                    <label htmlFor="entryPrice">
+                        Entry price
+                    </label>
+
+                    <input
+                        id="entryPrice"
+                        type="number"
+                        name="entryPrice"
+                        value={form.entryPrice}
+                        onChange={handleChange}
+                        min="0"
+                        step="0.01"
+                    />
+                </div>
+
+
+                <div className="form-row">
+                    <label htmlFor="quantity">Quantity</label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        value={form.quantity === 0 ? "" : form.quantity}
+                        onChange={handleChange}
+                        min="0"
+                        step="1"
+                        required
+                    />
+                </div>
+
+                <div className="form-row">
+                    <label>Calculated Position Size</label>
+
+                    <div className="calculated-field">
+                        {calculatePosSize(form.entryPrice, form.quantity) === null
+                        ? "Enter entry price and quantity"
+                        : `$${calculatePosSize(
+                            form.entryPrice,
+                            form.quantity
+                            )?.toFixed(2)}`}
+                    </div>
+                </div>
+
+
+                <div className="form-row">
+                    <label htmlFor="timePeriod">Time Period</label>
+                    <input 
+                        type="text"
+                        name="timePeriod"
+                        value={form.timePeriod}
+                        onChange={handleChange}
+                        placeholder=""
+                        required
+                    />
+                    
+                </div>
+
+                <div className="form-row">
+                    <label htmlFor="stopLoss">Stop-Loss</label>
+                    <input 
+                        type="number"
+                        name="stopLoss"
+                        value={form.stopLoss === 0 ? "" : form.stopLoss}
+                        onChange={handleChange}
+                        placeholder=""
+                        min="0"
+                        step="0.01"
+                        required
+                    />
+                    
+                </div>
+                
+
+                <div className="form-row">
+                    <label htmlFor="takeProfit">Take Profit</label>
+                    <input 
+                        type="number"
+                        name="takeProfit"
+                        value={form.takeProfit === 0 ? "" : form.takeProfit}
+                        onChange={handleChange}
+                        placeholder=""
+                        min="0"
+                        step="0.01"
+                        required
+                    />
+                    
+                </div>
+
+                <div className="form-row">
+                    <label>Calculated Risk-to-Reward</label>
+
+                    <div className="calculated-field">
+                        {previewRiskToReward === null
+                        ? "Enter valid entry, stop-loss and take-profit values"
+                        : `1:${previewRiskToReward}`}
+                    </div>
+                </div>
+                                
+                                
+
+                <h3>Trade Rationale</h3>
+
+                <div className="form-row">
+                    <label htmlFor="thesis">Trade Thesis</label>
+                    <textarea
+                        name="thesis"
+                        value={form.thesis}
+                        onChange={handleChange}
+                        placeholder="Reasons for this trade"
+                        required
+                    />
+                    
+                </div>
+                
+
+                <div className="form-row">
+                    <label htmlFor="catalyst">Catalyst</label>
+                    <textarea
+                        name="catalyst"
+                        value={form.catalyst}
+                        onChange={handleChange}
+                        placeholder="What event will move the price?"
+                        required
+                    />
+                    
+                </div>
+                
+                
+
+                <h3>Trade Execution</h3>
+
+                <div className="form-row">
+                    <label>Confidence</label>
+
+                    <div className="option-button-group">
+                        {confidenceOptions.map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            className={
+                            form.confidence === option.value
+                                ? "option-button selected"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                            handleOptionButton(
+                                "confidence",
+                                option.value
+                            )
+                            }
+                        >
+                            {option.label}
+                        </button>
+                        ))}
+                    </div>
+                </div>
+
+
+                <div className="form-row">
+                    <label>Emotions</label>
+
+                    <div className="option-button-group">
+                        {emotionOptions.map((emotion) => (
+                        <button
+                            key={emotion}
+                            type="button"
+                            className={
+                            form.emotions === emotion
+                                ? "option-button selected"
+                                : "option-button"
+                            }
+                            onClick={() =>
+                            handleOptionButton("emotions", emotion)
+                            }
+                        >
+                            {emotion}
+                        </button>
+                        ))}
+                    </div>
+                </div>
+                
+                {form.tradeStatus === "Closed" && (
+                    <>
+                        <h3>Trade Exit</h3>
+
+                        <div className="form-row">
+                            <label htmlFor="exitPrice">Exit Price</label>
+
+                            <input
+                                type="number"
+                                name="exitPrice"
+                                value={form.exitPrice ?? ""}
+                                onChange={handleChange}
+                                min="0"
+                                step="0.01"
+                                required
+                            />
+                        </div>
+
+                        <div className="form-row">
+                            <label>Calculated PnL</label>
+
+                            <div className="calculated-field">
+                                {calculatePnL(
+                                    form.quantity,
+                                    form.entryPrice,
+                                    form.exitPrice,
+            
+                                ) === null
+                                ? "Enter exit price to calculate PnL"
+                                : `$${calculatePnL(
+                                        form.quantity,
+                                        form.entryPrice,
+                                        form.exitPrice,
+                                        
+                                    )?.toFixed(2)}`}
+                            </div>
+                        </div>
+
+
+                          <div className="form-row">
+                            <label>Execution Mistakes</label>
+
+                            <div className="mistake-button-grid">
+                                {executionMistakeOptions.map((mistake) => (
+                                <button
+                                    key={mistake}
+                                    type="button"
+                                    className={
+                                    selectedExecutionMistakes.includes(mistake)
+                                        ? "mistake-button selected"
+                                        : "mistake-button"
+                                    }
+                                    onClick={() => toggleExecutionMistake(mistake)}
+                                >
+                                    {mistake}
+                                </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <label htmlFor="executionErrors">
+                                Extra Notes
+                            </label>
+
+                            <textarea
+                                name="executionErrors"
+                                value={form.executionErrors}
+                                onChange={handleChange}
+                                placeholder="Add any extra details about what went wrong..."
+                            />
+                        </div>
+                
+
+                        <div className="form-row">
+                            <label htmlFor="lessonsLearnt">Lessons Learnt</label>
+                            <textarea
+                                name="lessonsLearnt"
+                                value={form.lessonsLearnt}
+                                onChange={handleChange}
+                            />
+                            
+                        </div>
+                    </>
+                )}
+            
+
+                <div className="submit-button">
+                    <button type="submit" disabled={isSaving}>
+                    {isSaving ? "Updating..." : "Update Journal Entry"}
                     </button>
                 </div>
-            </div>
 
-            <div className="form-row">
-            <label htmlFor="entryPrice">
-                Entry price
-            </label>
-
-            <input
-                id="entryPrice"
-                type="number"
-                name="entryPrice"
-                value={form.entryPrice}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-            />
-            </div>
-
-            <div className="form-row">
-            <label htmlFor="positionSize">
-                Position size
-            </label>
-
-            <input
-                id="positionSize"
-                type="number"
-                name="positionSize"
-                value={form.positionSize}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-            />
-            </div>
-
-            <div className="form-row">
-                <label htmlFor="timePeriod">Time Period</label>
-                <input 
-                    type="text"
-                    name="timePeriod"
-                    value={form.timePeriod}
-                    onChange={handleChange}
-                    placeholder=""
-                    required
-                />
-                
-            </div>
-
-            <div className="form-row">
-                <label htmlFor="stopLoss">Stop-Loss</label>
-                <input 
-                    type="number"
-                    name="stopLoss"
-                    value={form.stopLoss === 0 ? "" : form.stopLoss}
-                    onChange={handleChange}
-                    placeholder=""
-                    min="0"
-                    step="0.01"
-                    required
-                />
-                
-            </div>
-            
-
-            <div className="form-row">
-                <label htmlFor="takeProfit">Take Profit</label>
-                <input 
-                    type="number"
-                    name="takeProfit"
-                    value={form.takeProfit === 0 ? "" : form.takeProfit}
-                    onChange={handleChange}
-                    placeholder=""
-                    min="0"
-                    step="0.01"
-                    required
-                />
-                
-            </div>
-            
-
-            <div className="form-row">
-                <label htmlFor="riskToReward">Risk-to-reward ratio</label>
-                <input 
-                    type="number"
-                    name="riskToReward"
-                    value={form.riskToReward === 0 ? "" : form.riskToReward}
-                    onChange={handleChange}
-                    placeholder=""
-                    min="0"
-                    step="0.01"
-                    required
-                />
-                
-            </div>
-            
-            
-
-            <h3>Trade Rationale</h3>
-
-            <div className="form-row">
-                <label htmlFor="thesis">Trade Thesis</label>
-                <textarea
-                    name="thesis"
-                    value={form.thesis}
-                    onChange={handleChange}
-                    placeholder="Reasons for this trade"
-                    required
-                />
-                
-            </div>
-            
-
-            <div className="form-row">
-                <label htmlFor="catalyst">Catalyst</label>
-                <textarea
-                    name="catalyst"
-                    value={form.catalyst}
-                    onChange={handleChange}
-                    placeholder="What event will move the price?"
-                    required
-                />
-                
-            </div>
-            
-            
-
-            <h3>Trade Execution</h3>
-
-            <div className="form-row">
-                <label htmlFor="executionErrors">Execution Errors</label>
-                <textarea
-                    name="executionErrors"
-                    value={form.executionErrors}
-                    onChange={handleChange}
-                />
-                
-            </div>
-
-            <div className="form-row">
-                <label>Execution Mistakes</label>
-
-                <div className="mistake-button-grid">
-                    {executionMistakeOptions.map((mistake) => (
+                <div className="cancel-button">
                     <button
-                        key={mistake}
                         type="button"
-                        className={
-                        selectedExecutionMistakes.includes(mistake)
-                            ? "mistake-button selected"
-                            : "mistake-button"
-                        }
                         onClick={() =>
-                        toggleExecutionMistake(mistake)
+                        navigate(`/journal`)
                         }
                     >
-                        {mistake}
+                        Cancel
                     </button>
-                    ))}
                 </div>
-            </div>
-
-            <div className="form-row">
-                <label htmlFor="executionErrors">
-                    Extra Notes
-                </label>
-
-                <textarea
-                    id="executionErrors"
-                    name="executionErrors"
-                    value={form.executionErrors ?? ""}
-                    onChange={handleChange}
-                    placeholder="Add any extra details about what went wrong..."
-                />
-            </div>
-
-            <div className="form-row">
-                <label>Confidence</label>
-
-                <div className="option-button-group">
-                    {confidenceOptions.map((option) => (
-                    <button
-                        key={option.value}
-                        type="button"
-                        className={
-                        form.confidence === option.value
-                            ? "option-button selected"
-                            : "option-button"
-                        }
-                        onClick={() =>
-                        handleOptionButton(
-                            "confidence",
-                            option.value
-                        )
-                        }
-                    >
-                        {option.label}
-                    </button>
-                    ))}
-                </div>
-            </div>
-
-
-            <div className="form-row">
-                <label>Emotions</label>
-
-                <div className="option-button-group">
-                    {emotionOptions.map((emotion) => (
-                    <button
-                        key={emotion}
-                        type="button"
-                        className={
-                        form.emotions === emotion
-                            ? "option-button selected"
-                            : "option-button"
-                        }
-                        onClick={() =>
-                        handleOptionButton("emotions", emotion)
-                        }
-                    >
-                        {emotion}
-                    </button>
-                    ))}
-                </div>
-            </div>
             
-            
-
-            <h3>Trade Exit</h3>
-
-
-            <div className="form-row">
-                <label htmlFor="maxFavourableExcursion">Minimum favourable excursion</label>
-                <input 
-                    type="number"
-                    name="maxFavourableExcursion"
-                    value={form.maxFavourableExcursion === 0 ? "" : form.maxFavourableExcursion}
-                    onChange={handleChange}
-                    placeholder=""
-                    min="0"
-                    step="0.01"
-                />
-            </div>
-            
-
-            <div className="form-row">
-                <label htmlFor="maxAdverseExcursion">Maximum adverse excursion</label>
-                <input 
-                    type="number"
-                    name="maxAdverseExcursion"
-                    value={form.maxAdverseExcursion === 0 ? "" : form.maxAdverseExcursion}
-                    onChange={handleChange}
-                    placeholder=""
-                    min="0"
-                    step="0.01"
-                />
-            </div>
-            
-
-
-            <div className="form-row">
-                <label htmlFor="pnl">PnL</label>
-
-                <input
-                    type="number"
-                    name="pnl"
-                    value={form.pnl === 0 ? "" : form.pnl}
-                    onChange={handleChange}
-                    step="0.01"
-                />
-
-            </div>
-
-            <div className="submit-button">
-                <button type="submit" disabled={isSaving}>
-                {isSaving ? "Updating..." : "Update Journal Entry"}
-                </button>
-            </div>
-
-            <div className="cancel-button">
-                <button
-                    type="button"
-                    onClick={() =>
-                    navigate(`/journal`)
-                    }
-                >
-                    Cancel
-                </button>
-            </div>
-        
-        </form>
+            </form>
         </main>
     );
     }

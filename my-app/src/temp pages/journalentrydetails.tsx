@@ -179,23 +179,18 @@ function JournalDetailsPage() {
             </div>
 
             <div className="details-grid">
+                <Detail label="Trade Status" value={entry.tradeStatus} />
                 <Detail label="Entry Price" value={entry.entryPrice} />
+                <Detail label="Quantity" value={entry.quantity} />
                 <Detail label="Position Size" value={entry.positionSize} />
                 <Detail label="Time Period" value={entry.timePeriod} />
                 <Detail label="Stop Loss" value={entry.stopLoss} />
                 <Detail label="Take Profit" value={entry.takeProfit} />
-                <Detail label="Risk-to-Reward" value={entry.riskToReward} />
+                <Detail label="Risk-to-Reward" value={`1:${entry.riskToReward}`} />
                 <Detail label="Confidence" value={`${entry.confidence}/5`} />
                 <Detail label="Emotion" value={entry.emotions} />
+                <Detail label="Exit Price" value={entry.exitPrice} />
                 <Detail label="PnL" value={entry.pnl} />
-                <Detail
-                    label="Max Favourable Excursion"
-                    value={entry.maxFavourableExcursion}
-                />
-                <Detail
-                    label="Max Adverse Excursion"
-                    value={entry.maxAdverseExcursion}
-                />
             </div>
 
             <DetailSection
@@ -223,7 +218,7 @@ function JournalDetailsPage() {
                     ))}
                     </div>
                 ) : (
-                    <p>None recorded</p>
+                    <p>Trade not closed. None recorded</p>
                 )}
 
                 {parsedExecutionErrors.notes && (
@@ -272,7 +267,7 @@ function JournalDetailsPage() {
                     {value === undefined ||
                     value === null ||
                     value === ""
-                    ? "Not provided"
+                    ? "Trade not closed. Not provided"
                     : value}
                 </strong>
             </div>
