@@ -2,11 +2,15 @@ import { auth } from "../firebase-config";
 
 import { BASE_URL } from "../api";
 
+export type TradeStatus = "Open" | "Closed";
+
 export interface JournalEntryInput {
   title: string;
   ticker: string;
-  direction: string;
+  direction: "Buy" | "Sell"
+  tradeStatus: TradeStatus;
   entryPrice: number;
+  quantity: number;
   positionSize: number;
   timePeriod: string;
   riskToReward: number;
@@ -16,13 +20,14 @@ export interface JournalEntryInput {
   catalyst: string;
 
   executionErrors?: string;
-  maxFavourableExcursion?: number;
-  maxAdverseExcursion?: number;
+  //maxFavourableExcursion?: number;
+  //maxAdverseExcursion?: number;
 
   confidence: number;
   emotions: string;
 
-  pnl?: number;
+  exitPrice: number | null;
+  pnl?: number | null;
   lessonsLearnt: string;
 }
 
@@ -56,6 +61,31 @@ async function readResponse<T>(
   }
 
   return data as T;
+}
+
+
+function getErrorMessage(data: any): string {
+    if (!data) {
+      return "Request failed.";
+    }
+
+    if (typeof data.detail === "string") {
+      return data.detail;
+    }
+
+    if (Array.isArray(data.detail)) {
+      return data.detail
+        .map((error: any) => {
+          const field = Array.isArray(error.loc)
+            ? error.loc.join(".")
+            : "field";
+
+          return `${field}: ${error.msg}`;
+        })
+        .join("\n");
+    }
+
+    return "Request failed.";
 }
 
 
@@ -104,12 +134,7 @@ export async function getJournalEntry(entryId: string) {
   const data = await response.json();
 
   if(!response.ok) {
-    throw new Error(
-      data.detail ||
-        data.message ||
-        "Unable to load journal entries."
-
-    );
+    throw new Error(getErrorMessage(data));
   }
 
   return data;
@@ -134,11 +159,7 @@ export async function CreateJournalEntry(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      data.detail ||
-        data.message ||
-        "Unable to save journal entry"
-    );
+    throw new Error(getErrorMessage(data));
   }
 
   return data as JournalEntry;
@@ -207,15 +228,15 @@ export async function updateJournalEntry(
   );
 
   if (!response.ok) {
-    let message = "Unable to update journal entry.";
+    let data: any = null;
 
     try {
       const data = await response.json();
-      message = data.detail || message;
+      
     } catch {
 
     }
-    throw new Error(message);
+    throw new Error(getErrorMessage(data));
   }
 
   return response.json();

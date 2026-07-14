@@ -16,8 +16,12 @@ def create_journal_entry(
     title = str(entry_data.get("title", "")).strip()
     ticker = str(entry_data.get("ticker", "")).strip().upper()
     direction = str(entry_data.get("direction", "")).strip()
+    tradeStatus = str(entry_data.get("tradeStatus", "")).strip()
+    
+    
 
     entry_price = float(entry_data.get("entryPrice", 0))
+    quantity = float(entry_data.get("quantity", 0))
     position_size = float(entry_data.get("positionSize", 0))
 
     time_period = str(
@@ -35,13 +39,13 @@ def create_journal_entry(
         entry_data.get("executionErrors", "")
     ).strip()
 
-    max_favourable_excursion = float(
-        entry_data.get("maxFavourableExcursion", 0)
-    )
+    #max_favourable_excursion = float(
+        #entry_data.get("maxFavourableExcursion", 0)
+    #)
 
-    max_adverse_excursion = float(
-        entry_data.get("maxAdverseExcursion", 0)
-    )
+    # max_adverse_excursion = float(
+    #     entry_data.get("maxAdverseExcursion", 0)
+    # )
 
     confidence = int(entry_data.get("confidence", 3))
 
@@ -49,7 +53,20 @@ def create_journal_entry(
         entry_data.get("emotions", "")
     ).strip()
 
-    pnl = float(entry_data.get("pnl", 0))
+    exit_price_raw = entry_data.get("exitPrice")
+    pnl_raw = entry_data.get("pnl")
+
+    exit_price = (
+        float(exit_price_raw)
+        if exit_price_raw is not None
+        else None
+    )
+
+    pnl = (
+        float(pnl_raw)
+        if pnl_raw is not None
+        else None
+    )
 
     if not thesis:
         raise ValueError("Trade thesis is required.")
@@ -64,6 +81,19 @@ def create_journal_entry(
 
     if position_size < 0:
         raise ValueError("Position size cannot be negative.")
+    
+    if tradeStatus == "Closed":
+        if exit_price is None:
+            raise ValueError(
+                "Exit price is required when trade status is Closed."
+            )
+
+        if pnl is None:
+            raise ValueError(
+                "PnL is required when trade status is Closed."
+            )
+
+
 
     now = datetime.now(timezone.utc)
 
@@ -71,6 +101,8 @@ def create_journal_entry(
         "title": title,
         "ticker": ticker,
         "direction": direction,
+        "tradeStatus": tradeStatus,
+        "quantity": quantity,
         "entryPrice": entry_price,
         "positionSize": position_size,
         "timePeriod": time_period,
@@ -78,10 +110,11 @@ def create_journal_entry(
         "thesis": thesis,
         "catalyst": catalyst,
         "executionErrors": execution_errors,
-        "maxFavourableExcursion": max_favourable_excursion,
-        "maxAdverseExcursion": max_adverse_excursion,
+        # "maxFavourableExcursion": max_favourable_excursion,
+        # "maxAdverseExcursion": max_adverse_excursion,
         "confidence": confidence,
         "emotions": emotions,
+        "exitPrice": exit_price,
         "pnl": pnl,
         "createdAt": now,
         "updatedAt": now,
@@ -172,7 +205,10 @@ ALLOWED_JOURNAL_FIELDS = {
     "title",
     "ticker",
     "direction",
+    "tradeStatus",
     "entryPrice",
+    "quantity",
+    "exitPrice",
     "positionSize",
     "timePeriod",
     "riskToReward",
@@ -181,13 +217,19 @@ ALLOWED_JOURNAL_FIELDS = {
     "thesis",
     "catalyst",
     "executionErrors",
-    "maxFavourableExcursion",
-    "maxAdverseExcursion",
+    # "maxFavourableExcursion",
+    # "maxAdverseExcursion",
     "confidence",
     "emotions",
     "pnl",
     "lessonsLearnt",
 }
+
+def optional_float(value):
+    if value is None or value == "":
+        return None
+
+    return float(value)
 
 def update_journal_entries(
     user_id: str,
@@ -233,6 +275,53 @@ def update_journal_entries(
             raise ValueError("Direction must be Buy or Sell.")
         
         updates["direction"] = direction
+    
+    if "tradeStatus" in updates:
+        trade_status = str(
+            updates["tradeStatus"]
+        ).strip().title()
+
+        if trade_status not in {"Open", "Closed"}:
+            raise ValueError(
+                "Trade status must be Open or Closed."
+            )
+
+        updates["tradeStatus"] = trade_status
+
+        if trade_status == "Open":
+            updates["exitPrice"] = None
+            updates["exitDate"] = None
+            updates["pnl"] = None
+            updates["executionErrors"] = ""
+            updates["maxFavourableExcursion"] = None
+            updates["maxAdverseExcursion"] = None
+            updates["lessonsLearnt"] = ""
+
+    for field in [
+        "entryPrice",
+        "quantity",
+        "positionSize",
+        "riskToReward",
+        "stopLoss",
+        "takeProfit",
+        "exitPrice",
+        "pnl",
+    ]:
+        if field in updates:
+            updates[field] = optional_float(
+                updates[field]
+            )
+
+    if updates.get("tradeStatus") == "Closed":
+        if updates.get("exitPrice") is None:
+            raise ValueError(
+                "Exit price is required when trade status is Closed."
+            )
+
+        if updates.get("pnl") is None:
+            raise ValueError(
+                "PnL is required when trade status is Closed."
+            )
     
     updates["updatedAt"] = datetime.now(timezone.utc)
 

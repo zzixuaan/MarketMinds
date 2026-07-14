@@ -22,8 +22,10 @@ class JournalEntryCreate(BaseModel):
     title: str = ""
     ticker: str = ""
     direction: str = Literal["Buy", "Sell"]
+    tradeStatus: str = Literal["Open", "Closed"]
 
     entryPrice: float = Field(default=0, ge=0)
+    quantity: float = Field(default=0, ge=0)
     positionSize: float = Field(default=0, ge=0)
 
     stopLoss: float = Field(default=0, ge=0)
@@ -34,15 +36,16 @@ class JournalEntryCreate(BaseModel):
     thesis: str = Field(min_length=1)
     catalyst: str = ""
 
-    executionErrors: str = ""
-    maxFavourableExcursion: float = 0
-    maxAdverseExcursion: float = 0
+    executionErrors: str = "" 
+    #maxFavourableExcursion: float = 0
+    #maxAdverseExcursion: float = 0
 
     confidence: int = Field(default=3, ge=1, le=5)
     emotions: str = ""
 
-    pnl: float = 0
-    lessonsLearnt: str = ""
+    exitPrice: float | None = Field(default=None, ge=0)
+    pnl: float | None = NotImplementedError
+    lessonsLearnt: str = "" 
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -112,33 +115,64 @@ async def delete_entry(entry_id: str, user_id: str = Depends(get_current_user_id
     
 
 class JournalEntryUpdate(BaseModel):
-    title: str | None = None
-    ticker: str | None = None
-    direction: Literal["Buy", "Sell"] | None = None
+        title: str = ""
+        ticker: str = ""
+        direction: str = Literal["Buy", "Sell"]
+        tradeStatus: str = Literal["Open", "Closed"]
 
-    entryPrice: float | None = None
-    positionSize: float | None = None
+        entryPrice: float = Field(default=0, ge=0)
+        quantity: float = Field(default=0, ge=0)
+        positionSize: float = Field(default=0, ge=0)
 
-    stopLoss: float | None = None
-    takeProfit: float | None = None
-    timePeriod: str | None = None
-    riskToReward: float | None = None
+        stopLoss: float = Field(default=0, ge=0)
+        takeProfit: float = Field(default=0, ge=0)
+        timePeriod: str = ""
+        riskToReward: float = Field(default=0, ge=0)
 
-    thesis: str | None = None
-    catalyst: str | None = None
+        thesis: str = Field(min_length=1)
+        catalyst: str = ""
 
-    executionErrors: str | None = None
-    maxFavourableExcursion: float | None = None
-    maxAdverseExcursion: float | None = None
+        executionErrors: str = "" 
+        #maxFavourableExcursion: float = 0
+        #maxAdverseExcursion: float = 0
 
-    confidence: int | None = None
-    emotions: str | None = None
+        confidence: int = Field(default=3, ge=1, le=5)
+        emotions: str = ""
 
-    pnl: float | None = None
-    lessonsLearnt: str | None = None
+        exitPrice: float | None = Field(default=None, ge=0)
+        pnl: float | None = NotImplementedError
+        lessonsLearnt: str = "" 
+
+    # title: str | None = None
+    # ticker: str | None = None
+    # direction: Literal["Buy", "Sell"] | None = None
+    # tradeStatus: Literal["Open", "Closed"] | None = None
+
+    # entryPrice: float | None = None
+    # quantity: float | None = None
+    # positionSize: float | None = None
+
+    # stopLoss: float | None = None
+    # takeProfit: float | None = None
+    # timePeriod: str | None = None
+    # riskToReward: float | None = None
+
+    # thesis: str | None = None
+    # catalyst: str | None = None
+
+    # executionErrors: str | None = None
+    # #maxFavourableExcursion: float | None = None
+    # #maxAdverseExcursion: float | None = None
+
+    # confidence: int | None = None
+    # emotions: str | None = None
+
+    # exitPrice: float | None = Field(default=None, ge=0)
+    # pnl: float | None = None
+    # lessonsLearnt: str | None = None
     
 
-@router.patch("/{entryId}")
+@router.patch("/{entry_id}")
 async def update_entry(
     entry_id: str,
     update_data: JournalEntryUpdate,

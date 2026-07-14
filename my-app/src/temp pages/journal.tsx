@@ -3,6 +3,8 @@ import JournalEntriesCard from "../Components/Journal/JournalEntriesCard";
 import NavigationBar from "../Components/General/NavigationBar";
 import TopHeader from "../Components/General/TopHeader";
 import "../cssPages/Journal.css";
+import JournalStats from "../Components/Journal/JournalStats";
+
 import { useNavigate } from "react-router-dom";
 
 import { useEffect, useState } from "react";
@@ -115,16 +117,17 @@ function Journal() {
             )}
 
             {!isLoading && !error && (
-                <JournalEntriesCard
-                entries={recentEntries}
-                onEntryClick={(entryId) => navigate(`/journal/${entryId}`)}
-                onViewAll={() => navigate(`/journalviewallpage`)}
-                onDelete={handleDeleteEntry}
-                deletingEntryId={deletingEntryId}
-                />
+                <>
+                    <JournalStats entries={entries} />
+                    <JournalEntriesCard
+                    entries={recentEntries}
+                    onEntryClick={(entryId) => navigate(`/journal/${entryId}`)}
+                    onViewAll={() => navigate(`/journalviewallpage`)}
+                    onDelete={handleDeleteEntry}
+                    deletingEntryId={deletingEntryId}
+                    />
+                </>
             )}
-
-
 
         </div>
 
