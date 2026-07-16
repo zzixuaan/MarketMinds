@@ -211,6 +211,7 @@ export const Trade = () => {
             }
             alert("Trade submitted successfully!");
             setShowReview(false);
+            setQuantity("");
         } catch (err : any) {
             alert(err.message || "Trade failed.");
         };

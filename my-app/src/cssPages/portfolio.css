@@ -19,7 +19,6 @@
 /*  Cards  */
 
 .summary-card,
-.portfolio-chart,
 .allocation,
 .insights,
 .portfolio-table-wrapper{
@@ -34,10 +33,22 @@
     overflow-y:hidden;
 }
 
-.portfolio-chart h2,
 .allocation h2,
 .insights h2{
     margin-bottom:18px;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.card-title h3,
+.card-title h2 {
+    margin: 0;
 }
 
 /*  Summary  */
@@ -102,50 +113,6 @@
     font-size: 1.3rem;
     font-weight: 600;
     color: #CBD5E1;
-}
-
-/*  Performance */
-
-.portfolio-chart{
-    padding: 28px;
-}
-
-.portfolio-chart h2{
-    margin-bottom: 20px;
-}
-
-.chart-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-
-.chart-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.chart-buttons button {
-    background: transparent;
-    color: #94A3B8;
-    border: 1px solid #334155;
-    border-radius: 8px;
-    padding: 6px 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.chart-buttons button:hover {
-    background: rgba(59, 130, 246, 0.12);
-    color: white;
-}
-
-.chart-buttons button.active {
-    background: #2563EB;
-    border-color: #2563EB;
-    color: white;
-    font-weight: 600;
 }
 
 /* Bottom part  = dashboard */
@@ -432,4 +399,39 @@
     .analytics-grid{
         grid-template-columns: 1fr;
     }
+}
+
+
+/* tooltip */
+
+.tooltip-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.tooltip-icon {
+    color: #94A3B8;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.tooltip-icon:hover {
+    color: white;
+}
+
+.tooltip-box {
+    position: absolute;
+    top: 26px;
+    right: 0;
+    width: 240px;
+    background: #1E293B;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    z-index: 1000;
 }

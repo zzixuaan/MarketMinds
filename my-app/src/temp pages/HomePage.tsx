@@ -1,7 +1,6 @@
 import TopHeader from "../Components/General/TopHeader";
-import PortfolioSummaryCard from "../Components/Home/PortfolioSummaryCard";
+import PortfolioSummaryCard from "../Components/Portfolio/PortfolioSummaryCard";
 import KeyMetricsCard from "../Components/Home/KeyMetricsCard";
-import AssetAllocationCard from "../Components/Home/AssetAllocationCard";
 import TopHoldingsCard from "../Components/Home/TopHoldingsCard";
 import RecentTradesCard from "../Components/Home/RecentTradesCard";
 import HomeHeader from "../Components/Home/HomeHeader";
@@ -20,6 +19,8 @@ import type {
   TradeEntry,
 } from "../services/tradeApi";
 
+import { getPortfolio } from "../services/portfolioApi";
+
 
 function HomePage() {
 
@@ -27,6 +28,12 @@ function HomePage() {
     const [entries, setEntries] = useState<TradeEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState("");
+
+    const [portfolio, setPortfolio] = useState<any>(null);
+    const [history, setHistory] = useState<{
+            value: number;
+            timestamp: string;
+        }[]>([]);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(
@@ -43,6 +50,11 @@ function HomePage() {
 
                     const tradeEntries = await getTradeEntries();
                     setEntries(tradeEntries);
+
+                    const data = await getPortfolio();
+                    setPortfolio(data.portfolio);
+                    setHistory(data.history);
+
 
                 } catch (error) {
                     setError(
@@ -69,12 +81,24 @@ function HomePage() {
         quantity: entry.quantity,
     }));
 
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!portfolio) {
+        return <div>Loading portfolio...</div>;
+    }
 
     return (
         <div className= "home">
             <TopHeader />
             <HomeHeader />
-            <PortfolioSummaryCard />
+            <div className = "home-portfolio">
+                <PortfolioSummaryCard
+                    portfolio={portfolio}
+                    history={history}
+                />
+            </div>
             <KeyMetricsCard />
             <div className="dashboard">
                 <TopHoldingsCard />
