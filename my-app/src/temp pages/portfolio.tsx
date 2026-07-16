@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { createChart, ColorType, AreaSeries } from "lightweight-charts";
-import { PieChart, Pie, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { PieChart, Pie, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts";
 import { auth } from "../firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
 
 import TopHeader from "../Components/General/TopHeader";
+import Tooltip from "../Components/Portfolio/Tooltip";
+import { TOOLTIPS } from "../services/tooltips"
 
 import "../cssPages/portfolio.css";
+import PortfolioSummaryCard from "../Components/Portfolio/PortfolioSummaryCard";
 
 import { BASE_URL } from "../api";
 
@@ -58,10 +60,6 @@ interface HistoryPoint {
 }
 
 export const Portfolio = () => {
-
-    const chartRef = useRef<HTMLDivElement>(null);
-    const chartInstance = useRef<any>(null);
-    const [selectedRange, setSelectedRange] = useState("ALL");
 
     const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
     const [history, setHistory] = useState<HistoryPoint[]>([]);
@@ -127,67 +125,11 @@ export const Portfolio = () => {
 
     }, []);
 
-    useEffect(() => {
-
-        if (!chartRef.current) return;
-        if (history.length === 0) return;
-
-        const chart = createChart(chartRef.current, {
-            width: chartRef.current.clientWidth,
-            height: 320,
-            layout: {
-                background: {
-                    type: ColorType.Solid,
-                    color: "#0F172A"
-                },
-                textColor: "#CBD5E1"
-            },
-
-            grid: {
-                vertLines: { color: "#rgba(255,255,255,0.05)" },
-                horzLines: { color: "#rgba(255,255,255,0.05)" }
-            }
-        });
-        chartInstance.current = chart;
-
-        const area = chart.addSeries(AreaSeries, {
-            lineColor: "#22C55E",
-            topColor: "rgba(34,197,94,0.4)",
-            bottomColor: "rgba(34,197,94,0.05)"
-        });
-
-        const chartData = history
-            .map(h => ({
-                time: Math.floor(new Date(h.timestamp).getTime() / 1000),
-                value: h.value,
-            }))
-            .sort((a, b) => a.time - b.time)
-            .filter((point, index, array) =>
-                index === 0 || point.time !== array[index - 1].time
-            );
-
-        area.setData(chartData as any);
-        chart.timeScale().fitContent();
-
-        const resize = () => {
-            chart.applyOptions({
-                width: chartRef.current!.clientWidth
-            });
-        };
-
-        window.addEventListener("resize", resize);
-
-        return () => {
-            window.removeEventListener("resize", resize);
-            chart.remove();
-        };
-
-    }, [history]);
-
     if (loading) return (
         <div className="portfolio-page">
             <div className="portfolio-container">
                 Loading portfolio...
+                This may take a while, please be patient.
             </div>
         </div>
     )
@@ -220,44 +162,7 @@ export const Portfolio = () => {
         })),
     ];
 
-    // adjust chart
-    const changeChartRange = (range:string) => {
-        setSelectedRange(range);
-
-        const chart = chartInstance.current;
-        if (!chart) return;
-
-        if (range === "ALL") {
-            chart.timeScale().fitContent();
-            return;
-        }
-
-        const latestTime = Math.floor(new Date(history[history.length - 1].timestamp).getTime() / 1000);        
-        let seconds;
-
-        switch(range){
-            case "1D":
-                seconds = 24 * 60 * 60;
-                break;
-            case "1W":
-                seconds = 7 * 24 * 60 * 60;
-                break;
-            case "1M":
-                seconds = 30 * 24 * 60 * 60;
-                break;
-            case "1Y":
-                seconds = 365 * 24 * 60 * 60;
-                break;
-            default:
-                return;
-        }
-
-        chart.timeScale().setVisibleRange({
-            from: (latestTime - seconds) as any,
-            to: latestTime as any,
-        });
-    };
-
+    
     return (
         <div className = "portfolio-page">
             <TopHeader />
@@ -265,20 +170,32 @@ export const Portfolio = () => {
                 <h1>Portfolio</h1>
                 <div className = "portfolio-summary">
                     <div className = "summary-card">
-                        <h3>Portfolio Value</h3>
+                        <div className="card-title">
+                            <h3>Portfolio Value</h3>
+                            <Tooltip text={TOOLTIPS.portfolioValue} />
+                        </div>
                         <p>${portfolio.portfolioValue.toLocaleString()}</p>
                     </div>
                     <div className = "summary-card">
-                        <h3>Market Value</h3>
+                        <div className="card-title">
+                            <h3>Market Value</h3>
+                            <Tooltip text={TOOLTIPS.marketValue} />
+                        </div>
                         <p>${portfolio.marketValue.toLocaleString()}</p>
                     </div>
                     <div className = "summary-card">
-                        <h3>Cash</h3>
+                        <div className="card-title">
+                            <h3>Cash</h3>
+                            <Tooltip text={TOOLTIPS.cash} />
+                        </div>
                         <p>${portfolio.cash.toLocaleString()}</p>
                         <small>{portfolio.cashWeight}% of portfolio</small>
                     </div>
                     <div className = "summary-card">
-                        <h3>Total P/L</h3>
+                        <div className="card-title">
+                            <h3>Unrealised P/L</h3>
+                            <Tooltip text={TOOLTIPS.totalPnl} />
+                        </div>
                         <p
                             style={{
                                 color: portfolio.unrealisedPnl >= 0 ? "#22C55E" : "#EF4444",
@@ -291,7 +208,10 @@ export const Portfolio = () => {
                     </div>
                     <div className = "performance-row">
                         <div className = "summary-card performance-card">
-                            <h3>Total Return</h3>
+                            <div className="card-title">
+                                <h3>Total Return</h3>
+                                <Tooltip text={TOOLTIPS.totalReturn} />
+                            </div>
                             <div
                                 className = "total-return-value"
                                 style={{
@@ -312,8 +232,10 @@ export const Portfolio = () => {
                             </div>
                         </div>
                         <div className = "summary-card performance-card">
-                            <h3>Daily Change</h3>
-
+                            <div className="card-title">
+                                <h3>Daily Change</h3>
+                                <Tooltip text={TOOLTIPS.dailyChange} />
+                            </div>
                             <div
                                 className = "total-return-value"
                                 style={{
@@ -335,44 +257,21 @@ export const Portfolio = () => {
                         </div>
                     </div>
                 </div>
-                <div className = "portfolio-chart">
-                    <div className = "chart-header">
-                        <h2>Portfolio Performance</h2>
-                        <div className = "chart-buttons">
-                            <button
-                                className={selectedRange === "1D" ? "active" : ""}
-                                onClick={() => changeChartRange("1D")}
-                            >1D</button>                            
-                            <button
-                                className={selectedRange === "1W" ? "active" : ""}
-                                onClick={() => changeChartRange("1W")}
-                            >1W</button>
-                            <button
-                                className={selectedRange === "1M" ? "active" : ""}
-                                onClick={() => changeChartRange("1M")}
-                            >1M</button>                            
-                            <button
-                                className={selectedRange === "1Y" ? "active" : ""}
-                                onClick={() => changeChartRange("1Y")}
-                            >1Y</button>                            
-                            <button
-                                className={selectedRange === "ALL" ? "active" : ""}
-                                onClick={() => changeChartRange("ALL")}
-                            >ALL</button>
-                        </div>
-                    </div>
-                    <div
-                        ref={chartRef}
-                        style={{
-                            width: "100%",
-                            height: "320px",
-                        }}
-                    />
-                </div>
+                <PortfolioSummaryCard
+                    portfolio={{
+                        portfolioValue: portfolio.portfolioValue,
+                        totalReturn: portfolio.totalReturn,
+                        totalReturnPercent: portfolio.totalReturnPercent,
+                    }}
+                    history={history}
+                />
                 <div className = "portfolio-dashboard">
                     <div className = "dashboard-left">
                         <div className = "allocation">
-                            <h2>Allocation</h2>
+                            <div className="card-title">
+                                <h2>Allocation</h2>
+                                <Tooltip text={TOOLTIPS.allocationDonut} />
+                            </div>
                             <div className = "allocation-chart">
                                 <ResponsiveContainer width="100%" height={280}>
                                     <PieChart>
@@ -387,7 +286,7 @@ export const Portfolio = () => {
                                             paddingAngle={2}
                                             fill="#3B82F6"
                                         />
-                                        <Tooltip
+                                        <RechartsTooltip
                                             formatter={(value) => [
                                                 `$${Number(value).toLocaleString()}`,
                                                 "Value",
@@ -399,7 +298,10 @@ export const Portfolio = () => {
                             </div>
                         </div>
                         <div className = "sector-card">
-                            <h2>Sector Allocation</h2>
+                            <div className="card-title">
+                                <h2>Sector Allocation</h2>
+                                <Tooltip text={TOOLTIPS.allocationSector} />
+                            </div>
                             {portfolio.sectorAllocation.map((sector) => (
                                 <div className = "sector-row" key={sector.sector}>
                                     <div className = "sector-header">
@@ -420,13 +322,19 @@ export const Portfolio = () => {
                     </div>
                     <div className = "dashboard-right">
                         <div className = "score-card">
-                            <h2>Portfolio score</h2>
+                            <div className="card-title">
+                                <h2>Portfolio Score</h2>
+                                <Tooltip text={TOOLTIPS.portfolioScore} />
+                            </div>
                         </div>
                         <div className = "insights">
                             <h2>Portfolio Analytics</h2>
                             <div className = "analytics-grid">
                                 <div className = "analytics-item">
-                                    <span>ROI</span>
+                                    <div className="card-title">
+                                        <span>ROI</span>
+                                        <Tooltip text={TOOLTIPS.roi} />
+                                    </div>
                                     <strong
                                         style={{
                                             color: portfolio.roi >= 0 ? "#22C55E" : "#EF4444",
@@ -436,7 +344,10 @@ export const Portfolio = () => {
                                     </strong>
                                 </div>
                                 <div className = "analytics-item">
-                                    <span>Risk Level</span>
+                                    <div className="card-title">
+                                        <span>Risk Level</span>
+                                        <Tooltip text={TOOLTIPS.riskLevel} />
+                                    </div>
                                     <strong
                                         style={{
                                             color:
@@ -451,7 +362,10 @@ export const Portfolio = () => {
                                     </strong>
                                 </div>
                                 <div className = "analytics-item">
-                                    <span>Diversification</span>
+                                    <div className="card-title">
+                                        <span>Diversification</span>
+                                        <Tooltip text={TOOLTIPS.diversification} />
+                                    </div>
                                     <strong>{portfolio.diversificationScore}/100</strong>
                                     <div className = "score-bar">
                                         <div
@@ -470,11 +384,17 @@ export const Portfolio = () => {
                                     </small>
                                 </div>
                                 <div className = "analytics-item">
-                                    <span>Holdings</span>
+                                    <div className="card-title">
+                                        <span>Holdings</span>
+                                        <Tooltip text={TOOLTIPS.holdings} />
+                                    </div>
                                     <strong>{portfolio.numberOfHoldings}</strong>
                                 </div>
                                 <div className = "analytics-item">
-                                    <span>Largest Position</span>
+                                    <div className="card-title">
+                                        <span>Largest Position</span>
+                                        <Tooltip text={TOOLTIPS.largestPosition} />
+                                    </div>
                                     <strong>
                                         {portfolio.largestPosition
                                             ? `${portfolio.largestPosition.symbol} (${portfolio.largestPosition.weight.toFixed(1)}%)`
@@ -482,13 +402,19 @@ export const Portfolio = () => {
                                     </strong>
                                 </div>
                                 <div className = "analytics-item">
-                                    <span>Average Position</span>
+                                    <div className="card-title">
+                                        <span>Average Position</span>
+                                        <Tooltip text={TOOLTIPS.averagePosition} />
+                                    </div>
                                     <strong>
                                         ${portfolio.averagePosition.toLocaleString()}
                                     </strong>
                                 </div>
                                 <div className = "analytics-item">
-                                    <span>Best Performer</span>
+                                    <div className="card-title">
+                                        <span>Best Performer</span>
+                                        <Tooltip text={TOOLTIPS.bestPerformer} />
+                                    </div>
                                     <strong
                                         style={{ color: "#22C55E" }}
                                     >
@@ -498,7 +424,10 @@ export const Portfolio = () => {
                                     </strong>
                                 </div>
                                 <div className = "analytics-item">
-                                    <span>Worst Performer</span>
+                                    <div className="card-title">
+                                        <span>Worst Performer</span>
+                                        <Tooltip text={TOOLTIPS.worstPerformer} />
+                                    </div>
                                     <strong
                                         style={{ color: "#EF4444" }}
                                     >

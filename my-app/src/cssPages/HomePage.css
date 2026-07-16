@@ -15,3 +15,12 @@
 .home {
   background-color: #050B1D;
 }
+
+.home-portfolio{
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
