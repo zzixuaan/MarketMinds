@@ -17,6 +17,9 @@
 }
 
 /*  Cards  */
+.portfolio-chart-wrapper{
+    height: 550px;
+}
 
 .summary-card,
 .allocation,
@@ -126,14 +129,14 @@
 
 .dashboard-left{
     display:grid;
-    grid-template-rows:1fr 1fr;
+    grid-template-rows:0.7fr 1fr 1fr;
     gap:24px;
 }
 
 .dashboard-right{
     display:grid;
-    grid-template-rows:180px 1fr;
-    gap:24px;
+    grid-template-rows: 1.9fr 1.1fr;
+    gap: 24px;
 }
 
 .insights{
@@ -149,12 +152,34 @@
     padding: 26px;
 }
 
-.score-card{
-    background:#0F172A;
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:18px;
-    padding:24px;
-    min-height:150px;
+/* SCORE */
+.score-card {
+    background: #0F172A;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
+}
+
+.score-card span {
+    color: #94A3B8;
+    font-size: .9rem;
+    font-weight: 500;
+}
+
+.score-card strong {
+    color: #C084FC;
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 12px 0;
+}
+
+.score-card p {
+    color: #CBD5E1;
+    margin: 0 0 20px;
 }
 
 /*  Donut  */
@@ -172,6 +197,22 @@
 }
 
 .recharts-legend-item-text{
+    color: white !important;
+}
+
+.recharts-tooltip-label {
+    color: white !important;
+}
+
+.recharts-tooltip-item {
+    color: white !important;
+}
+
+.recharts-tooltip-item-name {
+    color: white !important;
+}
+
+.recharts-tooltip-item-value {
     color: white !important;
 }
 

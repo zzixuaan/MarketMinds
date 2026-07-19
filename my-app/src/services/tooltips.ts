@@ -23,9 +23,6 @@ export const TOOLTIPS = {
     allocationSector:
         "Groups your investments by industry, such as Technology or Healthcare. Investing across multiple sectors can reduce the impact if one industry performs poorly.",
 
-    portfolioScore:
-        "A simple score that summarises the overall health of your portfolio based on factors like diversification, returns and risk. A higher score generally indicates a stronger, more balanced portfolio.",
-
     roi:
         "Return on Investment (ROI) measures how much your investments have gained or lost compared with the amount you paid for them. Higher positive percentages indicate better investment performance.",
     
@@ -49,4 +46,20 @@ export const TOOLTIPS = {
 
     worstPerformer:
         "The stock with the largest percentage loss since you bought it.",
+
+    advancedSharpeRatio:
+    "Measures returns earned compared to the amount of risk taken. A higher Sharpe Ratio generally indicates better risk-adjusted performance.",
+
+    advancedSortinoRatio:
+    "Measures returns compared to downside risk. It focuses only on negative price movements instead of all volatility.",
+
+    advancedMaxDrawdown:
+    "Shows the largest decline from a portfolio peak to a subsequent low. Smaller drawdowns indicate better protection against losses.",
+
+    advancedVolatility:
+    "Measures how much your portfolio value changes over time. Higher values indicate larger price swings and more uncertainty.",
+
+    portfolioScore:
+        "Portfolio Score combines your returns, risk management, diversification, and consistency into one score out of 100. A higher score indicates a more balanced and well-managed portfolio.",
+
 };

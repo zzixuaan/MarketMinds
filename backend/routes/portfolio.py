@@ -2,6 +2,7 @@ from fastapi import APIRouter, Header, HTTPException, Depends
 from config.firebase_admin import db, verify_token
 from firebase_admin import firestore
 from auth import get_current_user_id
+import statistics
 
 from services.finnhub import get_quote, get_company_profile
 
@@ -131,7 +132,6 @@ def get_portfolio(authorization : str = Header(None)):
                 "timestamp",
                 direction = firestore.Query.DESCENDING
             )
-            .limit(2)
             .stream()
         )
 
@@ -142,6 +142,8 @@ def get_portfolio(authorization : str = Header(None)):
             history_values.append(
                 data.get("value", 0)
             )
+
+        history_values_chrono = list(reversed(history_values))
 
         if len(history_values) >= 2:
             daily_change = history_values[0] - history_values[1]
@@ -154,11 +156,75 @@ def get_portfolio(authorization : str = Header(None)):
             daily_change = 0
             daily_change_percent = 0
 
+        daily_returns = []
+        for i in range(1, len(history_values_chrono)):
+            previous = history_values_chrono[i-1]
+            current = history_values_chrono[i]
+
+            if previous > 0:
+                daily_return = ((current - previous) / previous)
+                daily_returns.append(daily_return)
+
+        if len(daily_returns) > 1:
+            average_return = statistics.mean(daily_returns)
+
+            daily_volatility = statistics.stdev(daily_returns)
+            volatility = daily_volatility * (252 ** 0.5)
+
+            sharpe_ratio = (
+                (average_return / daily_volatility)
+                * (252 ** 0.5)
+                if daily_volatility != 0
+                else 0
+            )
+
+        else:
+            volatility = 0
+            sharpe_ratio = 0
+
+        negative_returns = [
+            r for r in daily_returns
+            if r < 0
+        ]
+
+        if len(negative_returns) > 1:
+            downside_deviation = statistics.stdev(
+                negative_returns
+            )
+
+            sortino_ratio = (
+                average_return /
+                downside_deviation *
+                (252 ** 0.5)
+                if downside_deviation != 0
+                else 0
+            )
+
+        else:
+            sortino_ratio = 0
+
+        peak = history_values_chrono[0] if history_values_chrono else 0
+        max_drawdown = 0
+
+        for value in history_values_chrono:
+            if value > peak:
+                peak = value
+
+            if peak > 0:
+                drawdown = ((value - peak) / peak)
+                max_drawdown = min(
+                    max_drawdown,
+                    drawdown
+                )
+
+        max_drawdown_percent = (max_drawdown * 100)
+
         cash_weight = (
             round(cash/portfolio_value*100, 2)
             if portfolio_value > 0
             else 0
         )
+
         unrealised_pnl = (total_market_value - total_cost_basis)
         unrealised_pnl_percent = (
             (unrealised_pnl/total_cost_basis) * 100
@@ -198,6 +264,64 @@ def get_portfolio(authorization : str = Header(None)):
             reverse=True
         )
 
+        # Return score (0-100)
+        return_score = 50
+        if roi > 0:
+            return_score += min(roi * 2, 50)
+        return_score = max(0, min(return_score, 100))
+
+        #risk score
+        risk_score = 50
+
+        # sharpe
+        if sharpe_ratio >= 2:
+            risk_score += 25
+        elif sharpe_ratio >= 1:
+            risk_score += 15
+        elif sharpe_ratio < 0:
+            risk_score -= 15
+        
+        # drawdown penalty
+        if max_drawdown_percent > -5:
+            risk_score += 20
+        elif max_drawdown_percent > -15:
+            risk_score += 10
+        else:
+            risk_score -= 20
+
+        # volaility penalty
+        if volatility < 0.15:
+            risk_score += 5
+        elif volatility > 0.30:
+            risk_score -= 10
+        risk_score = max(0, min(risk_score, 100))
+
+        # Diversification
+        diversification_score_component = diversification_score
+
+        # Consistency 
+        consistency_score = 50
+
+        if sortino_ratio >= 1:
+            consistency_score += 30
+        elif sortino_ratio < 0:
+            consistency_score -= 20
+
+        consistency_score = max(
+            0,
+            min(consistency_score,100)
+        )
+
+        # Final portfolio score
+        portfolio_score = (
+            return_score * 0.30 +
+            risk_score * 0.30 +
+            diversification_score_component * 0.20 +
+            consistency_score * 0.20
+        )
+
+        portfolio_score = round(portfolio_score)
+
         return {
             "cash": round(cash, 2),
             "portfolioValue": round(portfolio_value, 2),
@@ -221,6 +345,17 @@ def get_portfolio(authorization : str = Header(None)):
             "diversificationScore": diversification_score,
             "riskLevel": risk_level,
             "sectorAllocation": sector_allocation,
+            "sharpeRatio": round(sharpe_ratio,2),
+            "sortinoRatio": round(sortino_ratio,2),
+            "maxDrawdown": round(max_drawdown_percent,2),
+            "volatility": round(volatility*100, 2),
+            "portfolioScore": portfolio_score,
+            "scoreBreakdown": {
+                "performance": round(return_score),
+                "riskManagement": round(risk_score),
+                "diversification": round(diversification_score_component),
+                "consistency": round(consistency_score)
+            },
         }
 
     except HTTPException:
@@ -258,6 +393,7 @@ def get_portfolio_history(authorization: str = Header(None)):
         for doc in history_docs:
             data = doc.to_dict()
             history.append({"value": round(data.get("value", 0), 2), "timestamp": data["timestamp"]})
+
 
         return history
     

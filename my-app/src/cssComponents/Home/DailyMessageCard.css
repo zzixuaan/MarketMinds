@@ -1,0 +1,43 @@
+.daily-message-card {
+    background: linear-gradient(
+        135deg,
+        #151B35,
+        #0F172A
+    );
+    border: 1px solid rgba(167, 139, 250, 0.15);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.25);
+}
+
+.daily-message-card h2 {
+    margin: 0 0 20px;
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+
+.daily-message-card h3 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: white; 
+}
+
+
+.daily-message-card p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+    max-width: 420px;
+}
+
+.username-highlight {
+    color: #38BDF8;
+    font-weight: 700px;
+}

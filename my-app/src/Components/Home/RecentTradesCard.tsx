@@ -12,6 +12,7 @@ import Card from "../General/Card";
 export default RecentTradesCard;
 */
 
+import "../../cssComponents/Home/RecentTradesCard.css";
 
 export interface RecentTrades {
     id: string;
@@ -45,8 +46,8 @@ function RecentTradesCard({entries, onViewAll,}: RecentTradesCardProps ) {
         : [];
 
     return (
-        <section className= "journal-entries">
-            <div className= "journal-entries-header">
+        <section className= "recent-trades-card">
+            <div className= "recent-trades-header">
                 <h3>Recent Trades</h3>
 
                 <button className= "view-all-button"
@@ -57,31 +58,31 @@ function RecentTradesCard({entries, onViewAll,}: RecentTradesCardProps ) {
             </div>
 
             {validEntries.length === 0 ? (
-                <div className="journal-empty-state">
+                <div className="recent-trades-empty">
                     <p>No trade entries yet.</p>
                     <span> Make your first trade.</span>
                 </div>
             ) : (
-                <div className="journal-entries-list">
+                <div className="recent-trades-list">
                     {validEntries.slice(0,3).map((entry) => {
                         //const isProfit = entry.pnl >= 0;
 
                         return (
                             <article 
-                                className="journal-entry-row"
+                                className="recent-trade-row"
                                 key={entry.id}
                             >
-                                <div className="journal-entry-date">
+                                <div className="recent-trade-date">
                                      {new Date(entry.date).toLocaleDateString("en-GB", {day: "2-digit", month: "short",})}
                                 </div>
 
-                                <div className="journal-entry-info">
-                                    <div className="journal-entry-title">
+                                <div className="recent-trade-info">
+                                    <div className="recent-trade-title">
                                         <strong>{entry.symbol}</strong>
                                     </div>
 
-                                    <div className="journal-entry-details">
-                                        <span className={`journal-direction ${
+                                    <div className="recent-trade-details">
+                                        <span className={`recent-trade-direction ${
                                             entry?.side?.toLowerCase() === "buy"
                                                                             ? "buy"
                                                                             : "sell"

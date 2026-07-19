@@ -1,4 +1,4 @@
-import "../../cssComponents/TopHoldings.css";
+import "../../cssComponents/Home/TopHoldings.css";
 import { useEffect, useState } from "react";
 import { auth } from "../../firebase-config";
 

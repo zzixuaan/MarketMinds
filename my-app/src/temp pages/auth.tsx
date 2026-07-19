@@ -105,7 +105,10 @@ export const AUTH = () => {
                                     createdAt: serverTimestamp(),
                                     onboardingComplete: false,
                                     startingCapital: null,
-                                    cash: 0
+                                    cash: 0,
+                                    bio: "",
+                                    photoURL:""
+                                
                                 }, 
                             );            
             }
@@ -144,7 +147,9 @@ export const AUTH = () => {
                                 createdAt: serverTimestamp(),
                                 onboardingComplete: false,
                                 startingCapital: null,
-                                cash: 0
+                                cash: 0,
+                                bio: "",
+                                photoURL: ""
                             }
                         );
    
