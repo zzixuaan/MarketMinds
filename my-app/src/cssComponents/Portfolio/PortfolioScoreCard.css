@@ -1,0 +1,91 @@
+.portfolio-score-card {
+    background: #0F172A;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 18px;
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.portfolio-score-card h2 {
+    margin: 0 0 18px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #F8FAFC;
+}
+
+.score-number {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #C084FC;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+
+.score-number span {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #94A3B8;
+}
+
+
+.portfolio-score-card h3 {
+    margin: 12px 0 20px;
+    display: inline-flex;
+    width: fit-content;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #111C35;
+    color: #CBD5E1;
+    font-size: .9rem;
+    font-weight: 600;
+
+}
+
+
+/* Weak area box */
+
+.score-warning {
+    background: #111C35;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px;
+
+}
+
+
+.score-warning strong {
+    color: #F59E0B;
+    font-size: .85rem;
+
+}
+
+
+.score-warning p {
+    margin: 6px 0 0;
+    color: #E2E8F0;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+
+
+
+.portfolio-score-card small {
+    color: #94A3B8;
+    font-size: .85rem;
+    line-height: 1.5;
+}

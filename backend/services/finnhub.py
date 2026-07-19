@@ -48,6 +48,29 @@ def get_market_status(exchange : str):
     )
     return response.json()
 
+def get_market_news():
+    response = requests.get(
+        f"{BASE_URL}/news",
+        params = {
+            "category": "general",
+            "token": API_KEY
+        }
+    )
+    
+    news = response.json()
+
+    return [
+        {
+            "headline": article["headline"],
+            "summary": article["summary"],
+            "source": article["source"],
+            "image": article["image"],
+            "url": article["url"],
+            "datetime": article["datetime"]
+
+        }
+        for article in news
+    ]
 
 
 

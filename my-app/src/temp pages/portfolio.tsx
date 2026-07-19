@@ -9,6 +9,8 @@ import { TOOLTIPS } from "../services/tooltips"
 
 import "../cssPages/portfolio.css";
 import PortfolioSummaryCard from "../Components/Portfolio/PortfolioSummaryCard";
+import AdvancedCard from "../Components/Portfolio/Advanced";
+import PortfolioScoreCard from "../Components/Portfolio/PortfolioScoreCard";
 
 import { BASE_URL } from "../api";
 
@@ -52,6 +54,20 @@ interface PortfolioData {
     riskLevel: string;
     largestPosition: Holding | null;
     sectorAllocation: SectorAllocation[];
+
+    sharpeRatio: number; 
+    sortinoRatio: number;
+    maxDrawdown: number;
+    volatility: number;
+
+    portfolioScore: number;
+
+    scoreBreakdown: {
+        performance: number;
+        riskManagement: number;
+        diversification: number;
+        consistency: number;
+    };
 }
 
 interface HistoryPoint {
@@ -161,7 +177,6 @@ export const Portfolio = () => {
             fill: COLORS[(index + 1) % COLORS.length],
         })),
     ];
-
     
     return (
         <div className = "portfolio-page">
@@ -257,16 +272,22 @@ export const Portfolio = () => {
                         </div>
                     </div>
                 </div>
-                <PortfolioSummaryCard
-                    portfolio={{
-                        portfolioValue: portfolio.portfolioValue,
-                        totalReturn: portfolio.totalReturn,
-                        totalReturnPercent: portfolio.totalReturnPercent,
-                    }}
-                    history={history}
-                />
+                <div className = "portfolio-chart-wrapper">
+                    <PortfolioSummaryCard
+                        portfolio={{
+                            portfolioValue: portfolio.portfolioValue,
+                            totalReturn: portfolio.totalReturn,
+                            totalReturnPercent: portfolio.totalReturnPercent,
+                        }}
+                        history={history}
+                    />
+                </div>
                 <div className = "portfolio-dashboard">
                     <div className = "dashboard-left">
+                        <PortfolioScoreCard 
+                            score= {portfolio.portfolioScore}
+                            breakdown = {portfolio.scoreBreakdown}
+                        />
                         <div className = "allocation">
                             <div className="card-title">
                                 <h2>Allocation</h2>
@@ -321,12 +342,6 @@ export const Portfolio = () => {
                         </div>
                     </div>
                     <div className = "dashboard-right">
-                        <div className = "score-card">
-                            <div className="card-title">
-                                <h2>Portfolio Score</h2>
-                                <Tooltip text={TOOLTIPS.portfolioScore} />
-                            </div>
-                        </div>
                         <div className = "insights">
                             <h2>Portfolio Analytics</h2>
                             <div className = "analytics-grid">
@@ -439,6 +454,12 @@ export const Portfolio = () => {
 
                             </div>
                         </div>
+                        <AdvancedCard 
+                            sharpeRatio={portfolio.sharpeRatio}
+                            sortinoRatio={portfolio.sortinoRatio}
+                            maxDrawdown={portfolio.maxDrawdown}
+                            volatility={portfolio.volatility}
+                        />
                     </div>
                 </div>
                 <h2>Current Holdings ({portfolio.numberOfHoldings})</h2>

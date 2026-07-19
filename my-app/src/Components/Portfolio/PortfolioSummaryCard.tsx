@@ -1,4 +1,4 @@
-import "../../cssComponents/PortfolioSummaryCard.css";
+import "../../cssComponents/Portfolio/PortfolioSummaryCard.css";
 
 import { useEffect, useRef, useState } from "react";
 import {
@@ -87,19 +87,19 @@ function PortfolioSummaryCard({
 
         chart.timeScale().fitContent();
 
-        const resize = () => {
+        const resizeObserver = new ResizeObserver(() => {
             if (!chartRef.current) return;
 
             chart.applyOptions({
                 width: chartRef.current.clientWidth,
-                height: chartRef.current.clientHeight
+                height: chartRef.current.clientHeight,
             });
-        };
+        });
 
-        window.addEventListener("resize", resize);
+        resizeObserver.observe(chartRef.current);
 
         return () => {
-            window.removeEventListener("resize", resize);
+            resizeObserver.disconnect();
             chart.remove();
         };
 

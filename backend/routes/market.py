@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from services.alpaca import (get_market_clock, get_market_indices)
+from services.finnhub import (get_market_news)
 
 router = APIRouter()
 
@@ -34,3 +35,7 @@ def market_indices():
         }
 
     return result
+
+@router.get("/market-news")
+def market_news():
+    return get_market_news()

@@ -1,0 +1,164 @@
+.recent-trades-card{
+    background: linear-gradient(145deg,#121A31,#0D1426);
+    color:white;
+    border-radius:18px;
+    padding:28px;
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:
+        0 22px 45px rgba(0,0,0,.30),
+        inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.recent-trades-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.recent-trades-header h3{
+    margin:0;
+    font-size:22px;
+    font-weight:700;
+}
+
+.view-all-button{
+    background:rgba(255,255,255,.08);
+    color:white;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:999px;
+    padding:8px 16px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.view-all-button:hover{
+    background:rgba(255,255,255,.14);
+}
+
+/* List */
+
+.recent-trades-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+/* Individual trade */
+
+.recent-trade-row{
+    display:grid;
+    grid-template-columns:90px minmax(0,1fr);
+    align-items:center;
+    gap:18px;
+    padding:16px 18px;
+    background:rgba(3,10,29,.78);
+    border:1px solid rgba(111,132,181,.17);
+    border-radius:16px;
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        background .2s ease;
+}
+
+.recent-trade-row:hover{
+    transform:translateY(-2px);
+    background:rgba(7,15,38,.95);
+    border-color:rgba(126,92,255,.45);
+}
+
+/* Date */
+
+.recent-trade-date{
+    color:#94A3B8;
+    font-size:14px;
+    font-weight:600;
+}
+
+/* Trade info */
+
+.recent-trade-info{
+    min-width:0;
+}
+
+.recent-trade-title{
+    margin-bottom:8px;
+}
+
+.recent-trade-title strong{
+    color:white;
+    font-size:17px;
+    font-weight:700;
+}
+
+/* Details */
+
+.recent-trade-details{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px 16px;
+    color:#CBD5E1;
+    font-size:14px;
+}
+
+/* Buy Sell  */
+
+.recent-trade-direction{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:54px;
+    padding:4px 9px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+}
+
+.recent-trade-direction.buy{
+    border:1px solid rgba(34,197,94,.4);
+    background:rgba(34,197,94,.12);
+    color:#4ADE80;
+}
+
+.recent-trade-direction.sell{
+    border:1px solid rgba(239,68,68,.4);
+    background:rgba(239,68,68,.12);
+    color:#F87171;
+}
+
+/* Empty  */
+
+.recent-trades-empty{
+    text-align:center;
+    padding:30px;
+}
+
+.recent-trades-empty p{
+    margin:0 0 8px;
+    color:white;
+    font-weight:600;
+}
+
+.recent-trades-empty span{
+    color:#96A7C5;
+}
+
+
+@media (max-width:650px){
+
+    .recent-trade-row{
+        grid-template-columns:1fr;
+        gap:10px;
+    }
+
+    .recent-trade-details{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+    }
+}
