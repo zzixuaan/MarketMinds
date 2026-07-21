@@ -86,3 +86,25 @@
 .edit-profile-button:hover{
     background:#3B82F6;
 }
+
+.profile-uid {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-uid span {
+    color: #94A3B8;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.profile-uid code {
+    background: #111C35;
+    color: #C084FC;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+}

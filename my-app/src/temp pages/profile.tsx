@@ -85,6 +85,9 @@ export const Profile = () => {
                                 user?.displayName ||
                                 "Trader"}
                         </h1>
+                        <p className="profile-uid">
+                            <strong>UID:</strong> {user?.uid}
+                        </p>
                         <p>{user?.email}</p>
                         <p className = "profile-bio">{userData?.bio}</p>
                         <span>Member since {joined}</span>
