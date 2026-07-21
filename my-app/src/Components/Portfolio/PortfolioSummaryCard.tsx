@@ -1,4 +1,4 @@
-import "../../cssComponents/PortfolioSummaryCard.css";
+import "../../cssComponents/portfoliosummarycard.css";
 
 import { useEffect, useRef, useState } from "react";
 import {

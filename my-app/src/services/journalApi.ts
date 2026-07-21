@@ -37,7 +37,7 @@ export interface JournalEntry extends JournalEntryInput {
   updatedAt?: string;
 }
 
-async function getAuthToken(): Promise<string> {
+export async function getAuthToken(): Promise<string> {
   const user = auth.currentUser;
 
   if (!user) {
