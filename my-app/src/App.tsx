@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AUTH } from './temp pages/auth';
 import Journal from './temp pages/journal';
 import { Profile } from "./temp pages/profile";
+import { EditProfile } from "./temp pages/editProfile";
 import { ForgotPassword }  from "./temp pages/forgotpassword";
 import JournalEntry from "./temp pages/journalentry";
 import { Onboarding } from "./temp pages/onboarding"
@@ -26,6 +27,7 @@ function App() {
         <Route path="/home" element = {<HomePage />} />
         <Route path="/journal" element = {<Journal />} />
         <Route path="/profile" element = {<Profile />} />
+        <Route path = "/profile/edit" element = {<EditProfile />} />
         <Route path ="/forgot-password" element = {<ForgotPassword />} />
         <Route path ="/onboarding" element = {<Onboarding />} />
         <Route path ="/trade" element = {<Trade />} />
