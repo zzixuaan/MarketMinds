@@ -9,6 +9,7 @@ function NavigationBar() {
             <Link to ="/trade">Trade</Link>
             <Link to ="/journal">Journal</Link>
             <Link to = "/profile">Profile</Link>
+            <Link to = "/teams">Teams</Link>
         </nav>
     )
 }

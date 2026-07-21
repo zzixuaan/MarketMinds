@@ -16,6 +16,8 @@ import JournalViewAll from "./temp pages/journalviewallpage";
 import EditJournalEntryPage from "./temp pages/EditJournalEntryPage";
 import RecentTradesPage from "./temp pages/RecentTrades";
 import JournalDetailsPage from "./temp pages/journalentrydetails";
+import TeamsPage from "./temp pages/TeamsPage";
+import TeamPage from "./temp pages/TeamPage";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
         <Route path ="/journal/:entryId/edit" element = {<EditJournalEntryPage />} />
         <Route path ="/recent-trades" element = {<RecentTradesPage />} />
         <Route path ="/journal/:entryId" element = {<JournalDetailsPage />} />
+        <Route path ="/teams" element = {<TeamsPage />} />
+        <Route path ="/teams/:teamId" element = {<TeamPage />} />
       </Routes>
     </BrowserRouter>
   );
