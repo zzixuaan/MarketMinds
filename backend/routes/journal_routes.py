@@ -20,19 +20,19 @@ router = APIRouter(
 
 class JournalEntryCreate(BaseModel):
     title: str = ""
-    ticker: str = ""
-    direction: str = Literal["Buy", "Sell"]
-    tradeStatus: str = Literal["Open", "Closed"]
+    ticker: str 
+    direction: Literal["Buy", "Sell"]
+    tradeStatus: Literal["Open", "Closed"] = "Open"
 
-    entryPrice: float = Field(default=0, ge=0)
-    quantity: float = Field(default=0, ge=0)
-    positionSize: float = Field(default=0, ge=0)
+    entryPrice: float 
+    quantity: float 
+    positionSize: float
 
-    stopLoss: float = Field(default=0, ge=0)
-    takeProfit: float = Field(default=0, ge=0)
-    timePeriod: str = ""
-    riskToReward: float = Field(default=0, ge=0)
-
+    stopLoss: float
+    takeProfit: float
+    timePeriod: str
+    riskToReward: float
+    
     thesis: str = Field(min_length=1)
     catalyst: str = ""
 
