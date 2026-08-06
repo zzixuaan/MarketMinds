@@ -158,6 +158,11 @@ export const AUTH = () => {
    
             } catch (err: unknown) {
                 if (err instanceof Error) {
+
+                    console.log("Error code:", (err as any).code);
+                    console.log("Error message:", (err as any).message);
+                    console.log(err);
+
                     switch ((err as any).code) {
    
                         case "auth/email-already-in-use":
@@ -167,7 +172,8 @@ export const AUTH = () => {
                         case "auth/invalid-email":
                             setSignupError("Please enter a valid email.")
                             break;
-   
+                        
+                        case "auth/password-does-not-meet-requirements":
                         case "auth/weak-password":
                             setSignupError("Password should be at least 8 characters, contain an uppercase character and a number.")
                             break;
