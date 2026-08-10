@@ -133,7 +133,7 @@ function JournalStats({
 
         const avgLoss = unprofitableTrades.reduce((sum, entry) => sum + (entry.pnl ?? 0), 0) / unprofitableTrades.length;
 
-        const profitFactor = profitableTrades.reduce((sum, entry) => sum + (entry.pnl ?? 0), 0) / unprofitableTrades.reduce((sum, entry) => sum + (entry.pnl ?? 0), 0);
+        const profitFactor = profitableTrades.reduce((sum, entry) => sum + (entry.pnl ?? 0), 0) / Math.abs(unprofitableTrades.reduce((sum, entry) => sum + (entry.pnl ?? 0), 0));
         
 
 
