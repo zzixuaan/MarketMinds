@@ -5,240 +5,239 @@ import { BASE_URL } from "../api";
 export type TradeStatus = "Open" | "Closed";
 
 export interface JournalEntryInput {
-  title: string;
-  ticker: string;
-  direction: "Buy" | "Sell"
-  tradeStatus: TradeStatus;
-  entryPrice: number;
-  quantity: number;
-  positionSize: number;
-  timePeriod: string;
-  riskToReward: number;
-  stopLoss: number;
-  takeProfit: number;
-  thesis: string;
-  catalyst: string;
+    title: string;
+    ticker: string;
+    direction: "Buy" | "Sell"
+    tradeStatus: TradeStatus;
+    entryPrice: number;
+    quantity: number;
+    positionSize: number;
+    timePeriod: string;
+    riskToReward: number;
+    stopLoss: number;
+    takeProfit: number;
+    thesis: string;
+    catalyst: string;
 
-  executionErrors?: string;
-  //maxFavourableExcursion?: number;
-  //maxAdverseExcursion?: number;
+    executionErrors?: string;
+    //maxFavourableExcursion?: number;
+    //maxAdverseExcursion?: number;
 
-  confidence: number;
-  emotions: string;
+    confidence: number;
+    emotions: string;
 
-  exitPrice: number | null;
-  pnl?: number | null;
-  lessonsLearnt: string;
+    exitPrice: number | null;
+    pnl?: number | null;
+    lessonsLearnt: string;
 }
 
 export interface JournalEntry extends JournalEntryInput {
-  id: string;
-  createdAt?: string;
-  updatedAt?: string;
+    id: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export async function getAuthToken(): Promise<string> {
-  const user = auth.currentUser;
+    const user = auth.currentUser;
 
-  if (!user) {
-    throw new Error("You must be logged in.");
-  }
+    if (!user) {
+        throw new Error("You must be logged in.");
+    }
 
-  return user.getIdToken();
+    return user.getIdToken();
 }
 
 async function readResponse<T>(
-  response: Response
-): Promise<T> {
-  const data = await response.json();
+    response: Response
+    ): Promise<T> {
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(
-      data.detail ||
+    if (!response.ok) {
+        throw new Error(
+        data.detail ||
         data.message ||
         `Request failed with status ${response.status}.`
-    );
-  }
+        );
+    }
 
-  return data as T;
+    return data as T;
 }
 
 
 function getErrorMessage(data: any): string {
     if (!data) {
-      return "Request failed.";
+        return "Request failed.";
     }
 
     if (typeof data.detail === "string") {
-      return data.detail;
+        return data.detail;
     }
 
     if (Array.isArray(data.detail)) {
-      return data.detail
+        return data.detail
         .map((error: any) => {
-          const field = Array.isArray(error.loc)
+            const field = Array.isArray(error.loc)
             ? error.loc.join(".")
             : "field";
 
-          return `${field}: ${error.msg}`;
+            return `${field}: ${error.msg}`;
         })
         .join("\n");
-    }
+  }
 
     return "Request failed.";
 }
 
 
 export async function getJournalEntries(): Promise<
-  JournalEntry[]
+    JournalEntry[]
 > {
-  const token = await getAuthToken();
+    const token = await getAuthToken();
 
-  const response = await fetch(
-    `${BASE_URL}/api/journal`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  if(!response.ok) {
-    throw new Error(
-      data.detail ||
-        data.message ||
-        "Unable to load journal entries."
-
+    const response = await fetch(
+        `${BASE_URL}/api/journal`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
     );
-  }
 
-  return data as JournalEntry[];
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            data.detail ||
+            data.message ||
+            "Unable to load journal entries."
+        );
+    }
+
+    return data as JournalEntry[];
 }
 
 export async function getJournalEntry(entryId: string) {
-  const token = await getAuthToken();
+    const token = await getAuthToken();
 
-  const response = await fetch(
-    `${BASE_URL}/api/journal/${entryId}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    const response = await fetch(
+        `${BASE_URL}/api/journal/${entryId}`,
+        {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw new Error(getErrorMessage(data));
     }
-  );
 
-  const data = await response.json();
-
-  if(!response.ok) {
-    throw new Error(getErrorMessage(data));
-  }
-
-  return data;
+    return data;
 }
 
 
 
 export async function CreateJournalEntry(
-  entry: JournalEntryInput
+    entry: JournalEntryInput
 ): Promise<JournalEntry> {
-  const token = await getAuthToken();
+    const token = await getAuthToken();
 
-  const response = await fetch(`${BASE_URL}/api/journal`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(entry),
-  });
+    const response = await fetch(`${BASE_URL}/api/journal`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(entry),
+    });
 
-  const data = await response.json();
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error(getErrorMessage(data));
-  }
+    if (!response.ok) {
+        throw new Error(getErrorMessage(data));
+    }
 
-  return data as JournalEntry;
+    return data as JournalEntry;
 }
 
 
 export async function deleteJournalEntry(
-  entryId: string
+    entryId: string
 ): Promise<void> {
-  if (!entryId) {
-    throw new Error("Journal entry ID is required.");
-  }
-
-  const token= await getAuthToken();
-
-  const response = await fetch(
-    `${BASE_URL}/api/journal/${entryId}`,
-    {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    if (!entryId) {
+        throw new Error("Journal entry ID is required.");
     }
-  );
 
-  if (response.status === 204) {
-    return;
-  }
+    const token = await getAuthToken();
 
-  let errorMessage = "Unable to delete journal entry.";
+    const response = await fetch(
+        `${BASE_URL}/api/journal/${entryId}`,
+        {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
 
-  try {
-    const data = await response.json();
+    if (response.status === 204) {
+        return;
+    }
 
-    errorMessage = 
-      data.detail ||
-      data.message ||
-      errorMessage;
+    let errorMessage = "Unable to delete journal entry.";
 
-  } catch {
+    try {
+        const data = await response.json();
 
-  } throw new Error(errorMessage);
+        errorMessage =
+        data.detail ||
+        data.message ||
+        errorMessage;
+
+    } catch {
+
+    } throw new Error(errorMessage);
 }
 
 
 export async function updateJournalEntry(
-  entryId: string,
-  updates: Partial<JournalEntryInput>
+    entryId: string,
+    updates: Partial<JournalEntryInput>
 ): Promise<JournalEntry> {
-  if (!entryId) {
-    throw new Error("Journal entry ID is required.");
-  }
-
-  const token = await getAuthToken();
-
-  const response = await fetch(
-    `${BASE_URL}/api/journal/${entryId}`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(updates),
+    if (!entryId) {
+        throw new Error("Journal entry ID is required.");
     }
-  );
 
-  if (!response.ok) {
-    let data: any = null;
+    const token = await getAuthToken();
 
-    try {
-      const data = await response.json();
-      
-    } catch {
+    const response = await fetch(
+        `${BASE_URL}/api/journal/${entryId}`,
+        {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(updates),
+        }
+    );
 
+    if (!response.ok) {
+        let data: any = null;
+
+        try {
+            const data = await response.json();
+
+        } catch {
+
+        }
+        throw new Error(getErrorMessage(data));
     }
-    throw new Error(getErrorMessage(data));
-  }
 
-  return response.json();
-  
+    return response.json();
+
 }

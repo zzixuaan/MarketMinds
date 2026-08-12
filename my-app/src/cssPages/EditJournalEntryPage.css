@@ -13,13 +13,13 @@
 }
 
 .cancel-button {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 24px;
-  border: none;
-  background: transparent;
-  padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    border: none;
+    background: transparent;
+    padding: 0;
 }
 
 
